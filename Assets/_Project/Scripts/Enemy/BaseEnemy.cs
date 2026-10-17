@@ -23,7 +23,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
 
     public void OnTurn()
     {
- 
+        G.Get<CityController>().TakeDamage(enemyStats.atack);
     }
 
     public void UpdateInitiativeUI()

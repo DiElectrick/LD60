@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 437298256}
   - component: {fileID: 437298255}
   m_Layer: 5
-  m_Name: InitBarFill
+  m_Name: PlayerInitBarFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -459,6 +459,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b8cfeee9f11fe4698814c8b0c11bd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TurnManager
+  speedScale: 1
 --- !u!1 &974398377
 GameObject:
   m_ObjectHideFlags: 0
@@ -551,6 +552,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CityController
   initiativeFill: {fileID: 437298255}
+  healthFill: {fileID: 2001944570}
 --- !u!1 &1159928761
 GameObject:
   m_ObjectHideFlags: 0
@@ -955,11 +957,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
@@ -1016,7 +1018,7 @@ GameObject:
   - component: {fileID: 2001944571}
   - component: {fileID: 2001944570}
   m_Layer: 5
-  m_Name: HPBarFill
+  m_Name: PlayerHPBarFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1061,11 +1063,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
