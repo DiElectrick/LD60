@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3909609013962579692}
   - component: {fileID: 103278589883214876}
+  - component: {fileID: 2368992404664728886}
   m_Layer: 0
   m_Name: EngModulePfb
   m_TagString: Untagged
@@ -91,3 +92,16 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &2368992404664728886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9140915923716324071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d504a442d4e9a284c886a7a76f96870b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Module
+  data: {fileID: 0}

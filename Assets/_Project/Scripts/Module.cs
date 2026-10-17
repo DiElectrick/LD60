@@ -1,11 +1,21 @@
-
-
 using UnityEngine;
 
-public class Module : MonoBehaviour { 
-    
-}
+/// <summary>
+/// Runtime instance of a module, living on the spawned prefab.
+/// Holds a reference to its definition (ModuleData) so the city can read its bonus.
+/// </summary>
+public class Module : MonoBehaviour
+{
+    [SerializeField] ModuleData data;
 
-public class StatsBonus { 
+    public ModuleData Data => data;
 
+    public StatsBonus Bonus => data != null ? data.bonus : null;
+
+    /// <summary>Called by the city right after the prefab was instantiated.</summary>
+    public void Bind(ModuleData moduleData)
+    {
+        data = moduleData;
+        name = moduleData.displayName;
+    }
 }
