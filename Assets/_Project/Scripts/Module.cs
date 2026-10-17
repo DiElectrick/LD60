@@ -12,10 +12,20 @@ public class Module : MonoBehaviour
 
     public StatsBonus Bonus => data != null ? data.bonus : null;
 
+    Shaker shaker;
+
+    void Awake()
+    {
+        shaker = GetComponent<Shaker>();
+    }
+
     /// <summary>Called by the city right after the prefab was instantiated.</summary>
     public void Bind(ModuleData moduleData)
     {
         data = moduleData;
         name = moduleData.displayName;
+
+        // Engine modules vibrate all the time while the city runs.
+        if (shaker != null) shaker.SetIdleEnabled(moduleData.isEngine);
     }
 }

@@ -8,6 +8,9 @@ public class TurnManager : MonoBehaviour, IBootstraped
 
     bool isBattleStart = false;
 
+    /// <summary>True while the battle is ticking (used e.g. by turret idle behaviour).</summary>
+    public bool IsBattleActive => isBattleStart;
+
     [SerializeField] float speedScale = 1f;
 
     public bool isInitialised { get ; set ; }

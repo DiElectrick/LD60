@@ -17,6 +17,9 @@ public class BaseEnemy : MonoBehaviour, ITurner
 
     bool isAlive = true;
 
+    /// <summary>False once the enemy died (used by projectiles).</summary>
+    public bool IsAlive => isAlive;
+
     /// <summary>True while stunned: the next turn is skipped.</summary>
     bool isStunned;
 
@@ -124,8 +127,11 @@ public class BaseEnemy : MonoBehaviour, ITurner
     {
         if (!isAlive) return;
 
-        enemyStats.health -= Mathf.Max(damage - enemyStats.def, 1);
+        int applied = Mathf.Max(damage - enemyStats.def, 1);
+        enemyStats.health -= applied;
         Debug.Log($"{name} took {damage} damage, hp left: {enemyStats.health}");
+
+        G.Get<DamagePopupSpawner>()?.ShowEnemyDamage(applied, transform.position);
 
         UpdateHealthUI();
 

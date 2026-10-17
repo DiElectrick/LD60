@@ -153,8 +153,38 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3909609013962579692, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}
       insertIndex: -1
       addedObject: {fileID: 338635521161593234}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9140915923716324071, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2165272792806068448}
   m_SourcePrefab: {fileID: 100100000, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}
+--- !u!1 &481682014308649933 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9140915923716324071, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}
+  m_PrefabInstance: {fileID: 8679643365460767018}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2165272792806068448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 481682014308649933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a99a7713d3d5147a09d38a02df6c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CannonModule
+  barrel: {fileID: 338635521161593234}
+  idleSpinMax: 46.6
+  idleSpinMinDelay: 3.88
+  idleSpinMaxDelay: 4.77
+  aimSpeed: 65.3
+  recoilAngle: -7
+  recoilKickTime: 0.05
+  recoilReturnTime: 0.18
+  projectilePrefab: {fileID: 7034532900186971778, guid: 11601366a6937a242b21c1376f5f84f7, type: 3}
+  muzzleDistance: 0.5
 --- !u!4 &5635675526740504518 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3909609013962579692, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}

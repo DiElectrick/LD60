@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1483689100244731921}
   - component: {fileID: 2324975200705526776}
   - component: {fileID: 8644498097029562785}
+  - component: {fileID: 6175433116855547604}
   m_Layer: 0
   m_Name: Platform
   m_TagString: Untagged
@@ -129,3 +130,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6175433116855547604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 845301945191879600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f79c46ed46e7a24995851edfeb0288a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlatformSuspension
+  amplitude: 2
+  baseSpeed: 2.5
+  phasePerUnitX: 0.15
+  speedModDepth: 0.439
+  speedModRate: 0.29

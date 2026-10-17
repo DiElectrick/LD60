@@ -25,6 +25,9 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     /// <summary>Raised after a module was added or removed (stats already recalculated).</summary>
     public event System.Action ModulesChanged;
 
+    /// <summary>Raised every time the city takes damage (shakers listen to this).</summary>
+    public event System.Action Damaged;
+
     [SerializeField] Image initiativeFill;
     [SerializeField] Image healthFill;
 
@@ -141,7 +144,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     {
         Regenerate();
 
-        // TEMP (testing): on its turn the city attacks one random living enemy.
+        // On its turn the city attacks one random living enemy.
         var manager = G.Get<EnemyManager>();
         if (manager == null) return;
 
@@ -153,13 +156,38 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         }
 
         Debug.Log($"City attacks {target.name}");
+
+        // Damage happens exactly once, here - independent of any visual.
         target.TakeDamage(stats.atack);
+
+        // Weapon modules only play their shot for show.
+        foreach (var attacker in CollectAttackers())
+        {
+            attacker.PlayAttack(target);
+        }
 
         if (CombatRules.RollChance(stats.stanChance))
         {
             Debug.Log($"[Stun] City stuns {target.name} ({stats.stanChance}%)");
             target.Stun();
         }
+    }
+
+    /// <summary>Every placed module with a visible attack effect, in platform order.</summary>
+    List<AttackingModule> CollectAttackers()
+    {
+        var attackers = new List<AttackingModule>();
+
+        foreach (var platform in platforms)
+        {
+            foreach (var module in platform.Modules)
+            {
+                var attacker = module.GetComponent<AttackingModule>();
+                if (attacker != null) attackers.Add(attacker);
+            }
+        }
+
+        return attackers;
     }
 
     /// <summary>Regeneration: restores a percentage of max health at the start of the turn.</summary>
@@ -220,10 +248,14 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     }
 
     public void TakeDamage(int damage) { 
-        curentTakeDamage += Mathf.Max(damage-stats.def,1);
+        int applied = Mathf.Max(damage-stats.def,1);
+        curentTakeDamage += applied;
 
         Debug.Log(curentTakeDamage);
 
+        G.Get<DamagePopupSpawner>()?.ShowCityDamage(applied, transform.position);
+
         UpdateHealthUI();
+        Damaged?.Invoke();
     }
 }

@@ -14,6 +14,9 @@ public class ModuleData : ScriptableObject
 
     public StatsBonus bonus = new();
 
+    [Tooltip("Engine modules vibrate while the city is running.")]
+    public bool isEngine;
+
     [Tooltip("Optional icon for the inventory UI. Falls back to the prefab sprite.")]
     public Sprite icon;
 
