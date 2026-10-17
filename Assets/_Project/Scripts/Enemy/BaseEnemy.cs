@@ -17,19 +17,27 @@ public class BaseEnemy : MonoBehaviour, ITurner
 
     bool isAlive = true;
 
+    /// <summary>True while stunned: the next turn is skipped.</summary>
+    bool isStunned;
+
+    /// <summary>The data this enemy was spawned from (used for its loot table).</summary>
+    EnemyData data;
+
     void Awake()
     {
         maxHealth = enemyStats.health;
     }
 
     /// <summary>Called by the spawner right after the prefab was instantiated.</summary>
-    public void Bind(EnemyData data)
+    public void Bind(EnemyData enemyData)
     {
-        enemyStats = data.stats.Clone();
+        data = enemyData;
+        enemyStats = enemyData.stats.Clone();
         maxHealth = enemyStats.health;
         isAlive = true;
+        isStunned = false;
         turnFill = 0f;
-        name = data.displayName;
+        name = enemyData.displayName;
 
         UpdateHealthUI();
         UpdateInitiativeUI();
@@ -55,13 +63,61 @@ public class BaseEnemy : MonoBehaviour, ITurner
         if (turnFill >= 1f)
         {
             turnFill -= 1f;
+
+            if (isStunned)
+            {
+                // The whole turn is lost, then the stun wears off.
+                isStunned = false;
+                UpdateInitiativeUI();
+                Debug.Log($"[Stun] {name} is stunned and skips a turn");
+                return;
+            }
+
             OnTurn();
         }
     }
 
     public void OnTurn()
     {
-        G.Get<CityController>().TakeDamage(enemyStats.atack);
+        Regenerate();
+
+        var city = G.Get<CityController>();
+        if (city == null) return;
+
+        city.TakeDamage(enemyStats.atack);
+
+        if (CombatRules.RollChance(enemyStats.stanChance))
+        {
+            Debug.Log($"[Stun] {name} stuns the city ({enemyStats.stanChance}%)");
+            city.Stun();
+        }
+    }
+
+    /// <summary>Regeneration: restores a percentage of max health at the start of the turn.</summary>
+    void Regenerate()
+    {
+        int heal = CombatRules.RegenAmount(maxHealth, enemyStats.regen);
+        if (heal <= 0) return;
+
+        enemyStats.health = Mathf.Min(enemyStats.health + heal, maxHealth);
+        UpdateHealthUI();
+
+        Debug.Log($"[Regen] {name} restored {heal} hp (hp left: {enemyStats.health})");
+    }
+
+    /// <summary>Marks the enemy as stunned: it will skip its next turn.</summary>
+    public void Stun()
+    {
+        if (!isAlive) return;
+
+        isStunned = true;
+    }
+
+    /// <summary>Reset for a new battle (also drops any stun).</summary>
+    public void Restart()
+    {
+        turnFill = 0f;
+        isStunned = false;
     }
 
     public void TakeDamage(int damage)
@@ -81,8 +137,17 @@ public class BaseEnemy : MonoBehaviour, ITurner
         isAlive = false;
         Debug.Log($"{name} died");
 
+        DropLoot();
+
         // Deactivating fires OnDisable, which removes the enemy from the EnemyManager.
         gameObject.SetActive(false);
+    }
+
+    void DropLoot()
+    {
+        if (data == null || data.drops.Count == 0) return;
+
+        G.Get<ResourceManager>()?.AddDrops(data.drops);
     }
 
     public void UpdateInitiativeUI()

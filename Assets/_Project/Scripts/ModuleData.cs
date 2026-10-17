@@ -13,4 +13,19 @@ public class ModuleData : ScriptableObject
     public Module prefab;
 
     public StatsBonus bonus = new();
+
+    [Tooltip("Optional icon for the inventory UI. Falls back to the prefab sprite.")]
+    public Sprite icon;
+
+    /// <summary>Sprite shown in the inventory slot (and dragged around).</summary>
+    public Sprite Icon
+    {
+        get
+        {
+            if (icon != null) return icon;
+
+            var renderer = prefab != null ? prefab.GetComponentInChildren<SpriteRenderer>(true) : null;
+            return renderer != null ? renderer.sprite : null;
+        }
+    }
 }

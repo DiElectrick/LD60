@@ -40,7 +40,13 @@ public class Platform : MonoBehaviour
     {
         for (int i = 0; i < modules.Count; i++)
         {
-            modules[i].transform.localPosition = new Vector3(0f, startOffset + i * moduleStep, 0f);
+            modules[i].transform.localPosition = GetSlotLocalPosition(i);
         }
+    }
+
+    /// <summary>Local position a module sits at in the given slot.</summary>
+    public Vector3 GetSlotLocalPosition(int slotIndex)
+    {
+        return new Vector3(0f, startOffset + slotIndex * moduleStep, 0f);
     }
 }

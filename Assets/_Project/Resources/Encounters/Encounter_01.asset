@@ -15,4 +15,3 @@ MonoBehaviour:
   displayName: Raiders
   enemies:
   - {fileID: 11400000, guid: 72e75e2922e4adf428d42366ca06e0a7, type: 2}
-  - {fileID: 11400000, guid: 4e533dd3927766e449413c9641a3631b, type: 2}

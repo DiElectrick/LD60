@@ -12,6 +12,10 @@ public class ModulePanelUI : MonoBehaviour
 
     public event Action OnNext;
 
+    /// <summary>Raised when the panel appears / disappears (used by world-space markers).</summary>
+    public event Action Shown;
+    public event Action Hidden;
+
     void Awake()
     {
         if (nextButton != null)
@@ -22,8 +26,7 @@ public class ModulePanelUI : MonoBehaviour
 
     void OnDestroy()
     {
-        if (nextButton != null)
-            nextButton.onClick.RemoveListener(HandleNext);
+        if (nextButton != null) nextButton.onClick.RemoveListener(HandleNext);
     }
 
     void HandleNext()
@@ -32,7 +35,15 @@ public class ModulePanelUI : MonoBehaviour
         OnNext?.Invoke();
     }
 
-    public void Show() => gameObject.SetActive(true);
+    public void Show()
+    {
+        gameObject.SetActive(true);
+        Shown?.Invoke();
+    }
 
-    public void Hide() => gameObject.SetActive(false);
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+        Hidden?.Invoke();
+    }
 }

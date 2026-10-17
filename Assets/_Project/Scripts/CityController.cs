@@ -22,10 +22,19 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     /// <summary>Current stats: base stats + bonuses from all placed modules.</summary>
     public Stats Stats => stats;
 
+    /// <summary>Raised after a module was added or removed (stats already recalculated).</summary>
+    public event System.Action ModulesChanged;
+
     [SerializeField] Image initiativeFill;
     [SerializeField] Image healthFill;
 
     int curentTakeDamage;
+
+    /// <summary>True while the city is stunned: its next turn is skipped.</summary>
+    bool isStunned;
+
+    /// <summary>Health left right now (max health minus accumulated damage).</summary>
+    public int CurrentHealth => Mathf.Max(0, stats.health - curentTakeDamage);
 
     public void Init()
     {
@@ -83,6 +92,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
         Debug.Log($"[City] Added module '{data.displayName}' to {platform.name} ({platform.Count}/{Platform.MaxModules})");
         RecalculateStats();
+        ModulesChanged?.Invoke();
         return module;
     }
 
@@ -97,6 +107,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
             Debug.Log($"[City] Removed module '{module.name}' from {platform.name} ({platform.Count}/{Platform.MaxModules})");
             Destroy(module.gameObject);
             RecalculateStats();
+            ModulesChanged?.Invoke();
             return true;
         }
 
@@ -118,7 +129,8 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
             }
         }
 
-        Debug.Log($"[City] Stats: atk {stats.atack}, hp {stats.health}, def {stats.def}, spd {stats.speed}");
+        Debug.Log($"[City] Stats: atk {stats.atack}, hp {stats.health}, def {stats.def}, spd {stats.speed}, " +
+                  $"regen {stats.regen}%, stun {stats.stanChance}%");
 
         UpdateHealthUI();
     }
@@ -127,6 +139,8 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
     public void OnTurn()
     {
+        Regenerate();
+
         // TEMP (testing): on its turn the city attacks one random living enemy.
         var manager = G.Get<EnemyManager>();
         if (manager == null) return;
@@ -140,6 +154,37 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
         Debug.Log($"City attacks {target.name}");
         target.TakeDamage(stats.atack);
+
+        if (CombatRules.RollChance(stats.stanChance))
+        {
+            Debug.Log($"[Stun] City stuns {target.name} ({stats.stanChance}%)");
+            target.Stun();
+        }
+    }
+
+    /// <summary>Regeneration: restores a percentage of max health at the start of the turn.</summary>
+    void Regenerate()
+    {
+        int heal = CombatRules.RegenAmount(stats.health, stats.regen);
+        if (heal <= 0) return;
+
+        curentTakeDamage = Mathf.Max(0, curentTakeDamage - heal);
+        UpdateHealthUI();
+
+        Debug.Log($"[Regen] City restored {heal} hp ({curentTakeDamage} damage taken)");
+    }
+
+    /// <summary>Marks the city as stunned: it will skip its next turn.</summary>
+    public void Stun()
+    {
+        isStunned = true;
+    }
+
+    /// <summary>Reset for a new battle (also drops any stun).</summary>
+    public void Restart()
+    {
+        turnFill = 0f;
+        isStunned = false;
     }
 
     public void AddFill(float addedFill)
@@ -148,6 +193,16 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         UpdateInitiativeUI();
         if (turnFill >= 1f) {
             turnFill -= 1f;
+
+            if (isStunned)
+            {
+                // The whole turn is lost, then the stun wears off.
+                isStunned = false;
+                UpdateInitiativeUI();
+                Debug.Log("[Stun] City is stunned and skips a turn");
+                return;
+            }
+
             OnTurn();
         }
     }

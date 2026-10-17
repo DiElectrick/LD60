@@ -18,6 +18,16 @@ MonoBehaviour:
     speed: 70
     health: 120
     def: 2
-    atack: 14
+    atack: 6
     regen: 0
     stanChance: 0
+  drops:
+  - type: 0
+    minAmount: 4
+    maxAmount: 8
+  - type: 1
+    minAmount: 1
+    maxAmount: 3
+  - type: 2
+    minAmount: 0
+    maxAmount: 1

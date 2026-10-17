@@ -398,6 +398,182 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_12
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 138
+        width: 38
+        height: 24
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 310b2c202c0e42742b7fc8d7e02c25ac
+      internalID: -190144343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_13
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 109
+        width: 38
+        height: 24
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3d106493d7f5f93458fba02df27d91be
+      internalID: -1063402700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_14
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 79
+        width: 38
+        height: 24
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d27cb83fbc55954182b475ed20f2643
+      internalID: 1583122903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_15
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 52
+        width: 38
+        height: 24
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6f7d0e4b277ec7b40a8fb482054e2321
+      internalID: -247709092
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_16
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 111
+        width: 32
+        height: 12
+      alignment: 9
+      pivot: {x: 0.2023437, y: 0.50000066}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8887d04655bc2704e9fc5226f52f2c7c
+      internalID: 1733998596
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_17
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 152
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: acb8754b097f9c64caf0d490a224565d
+      internalID: 837899876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_18
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 136
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 614c634097fb9fa4a8df166bbfd2a0b1
+      internalID: -267670266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_19
+      rect:
+        serializedVersion: 2
+        x: 124
+        y: 150
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 347248824a0cd92408fef5023350d688
+      internalID: -624947064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -418,6 +594,14 @@ TextureImporter:
       NomadCity_export_1: 4924330716680124558
       NomadCity_export_10: -1021999893
       NomadCity_export_11: 929125105
+      NomadCity_export_12: -190144343
+      NomadCity_export_13: -1063402700
+      NomadCity_export_14: 1583122903
+      NomadCity_export_15: -247709092
+      NomadCity_export_16: 1733998596
+      NomadCity_export_17: 837899876
+      NomadCity_export_18: -267670266
+      NomadCity_export_19: -624947064
       NomadCity_export_2: -7293170466157348186
       NomadCity_export_3: -7644529716688296759
       NomadCity_export_4: -723376294

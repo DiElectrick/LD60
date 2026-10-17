@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -13,4 +14,7 @@ public class EnemyData : ScriptableObject
     public BaseEnemy prefab;
 
     public Stats stats = new();
+
+    [Tooltip("Resources dropped when this enemy dies. Every entry rolls its own [min..max] amount.")]
+    public List<ResourceDrop> drops = new();
 }
