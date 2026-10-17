@@ -176,15 +176,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CannonModule
   barrel: {fileID: 338635521161593234}
-  idleSpinMax: 46.6
-  idleSpinMinDelay: 3.88
-  idleSpinMaxDelay: 4.77
   aimSpeed: 65.3
   recoilAngle: -7
   recoilKickTime: 0.05
-  recoilReturnTime: 0.18
+  recoilReturnTime: 0.28
   projectilePrefab: {fileID: 7034532900186971778, guid: 11601366a6937a242b21c1376f5f84f7, type: 3}
   muzzleDistance: 0.5
+  shotTime: 0.35
 --- !u!4 &5635675526740504518 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3909609013962579692, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}

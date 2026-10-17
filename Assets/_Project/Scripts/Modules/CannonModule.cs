@@ -1,9 +1,9 @@
-using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// Turret module: the barrel idly swings around out of combat, turns towards the
-/// target on attack, fires a projectile prefab and kicks back from the recoil.
+/// Turret module: always aims at the city's current target, and on attack fires a
+/// projectile timed to land together with the city's damage. The shot is decoration.
 /// </summary>
 public class CannonModule : AttackingModule
 {
@@ -11,10 +11,7 @@ public class CannonModule : AttackingModule
     [Tooltip("Child object that rotates. Falls back to this transform.")]
     [SerializeField] Transform barrel;
 
-    [SerializeField] float idleSpinMax = 45f;       // degrees per second while idle
-    [SerializeField] float idleSpinMinDelay = 1.5f; // how long one spin direction lasts
-    [SerializeField] float idleSpinMaxDelay = 3.5f;
-    [SerializeField] float aimSpeed = 540f;         // degrees per second while aiming
+    [SerializeField] float aimSpeed = 540f; // degrees per second
 
     [Header("Recoil")]
     [Tooltip("How far the barrel kicks away from the aim direction when firing.")]
@@ -27,10 +24,10 @@ public class CannonModule : AttackingModule
     [SerializeField] Projectile projectilePrefab;
     [SerializeField] float muzzleDistance = 0.7f;
 
-    TurnManager turnManager;
+    [Tooltip("How long the projectile flies before it reaches the target.")]
+    [SerializeField] float shotTime = 0.35f;
 
-    float idleSpin;
-    float nextSpinChange;
+    CityController city;
     bool isBusy;
 
     void Awake()
@@ -40,104 +37,85 @@ public class CannonModule : AttackingModule
 
     void Start()
     {
-        turnManager = G.Get<TurnManager>();
-        PickIdleSpin();
+        city = G.Get<CityController>();
+    }
+
+    void OnDestroy()
+    {
+        barrel.DOKill();
     }
 
     void Update()
     {
         if (isBusy) return;
 
-        // Random swinging only out of combat - in combat the turret holds its angle
-        // and only moves when it aims and fires.
-        if (IsInCombat) return;
+        var target = city != null ? city.CurrentTarget : null;
+        if (target == null || !target.IsAlive) return;
 
-        if (Time.time >= nextSpinChange) PickIdleSpin();
-
-        barrel.Rotate(0f, 0f, idleSpin * Time.deltaTime);
+        // Always face the current target - there is no idle randomness.
+        float angle = Mathf.MoveTowardsAngle(barrel.localEulerAngles.z, AimAngle(target),
+            aimSpeed * Time.deltaTime);
+        SetBarrelAngle(angle);
     }
 
-    bool IsInCombat => turnManager != null && turnManager.IsBattleActive;
-
-    void PickIdleSpin()
+    public override float GetAttackDelay(BaseEnemy target)
     {
-        nextSpinChange = Time.time + Random.Range(idleSpinMinDelay, idleSpinMaxDelay);
-        idleSpin = Random.Range(-idleSpinMax, idleSpinMax);
+        if (target == null || !target.IsAlive) return 0f;
+
+        return AimTime(target) + shotTime;
     }
 
-    public override void PlayAttack(BaseEnemy target)
+    public override void PlayAttack(BaseEnemy target, float hitDelay)
     {
         if (target == null || !target.IsAlive) return;
 
-        StartCoroutine(AimFireAndRecoil(target));
-    }
+        barrel.DOKill();
 
-    IEnumerator AimFireAndRecoil(BaseEnemy target)
-    {
+        float aimTime = AimTime(target);
+        float targetAngle = AimAngle(target);
+
+        // Fire early enough that the shot lands together with the city's damage.
+        float wait = Mathf.Max(0f, hitDelay - aimTime - shotTime);
+
         isBusy = true;
 
-        // Aim in the barrel's parent space, so a rocking platform doesn't break it.
-        float angle = barrel.localEulerAngles.z;
+        var sequence = DOTween.Sequence();
+        sequence.Append(barrel.DOLocalRotate(new Vector3(0f, 0f, targetAngle), aimTime).SetEase(Ease.OutQuad));
 
-        while (target != null && target.IsAlive)
-        {
-            Vector3 localTarget = barrel.parent.InverseTransformPoint(target.transform.position);
-            Vector3 direction = localTarget - barrel.localPosition;
-            float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (wait > 0f) sequence.AppendInterval(wait);
 
-            float delta = Mathf.DeltaAngle(angle, targetAngle);
-            if (Mathf.Abs(delta) <= 2f) break;
-
-            angle = Mathf.MoveTowardsAngle(angle, targetAngle, aimSpeed * Time.deltaTime);
-            SetBarrelAngle(angle);
-
-            yield return null;
-        }
-
-        if (target == null || !target.IsAlive)
-        {
-            isBusy = false;
-            PickIdleSpin();
-            yield break;
-        }
-
-        angle = barrel.localEulerAngles.z;
-        Fire(target);
-
-        yield return Recoil(angle);
-
-        isBusy = false;
-        PickIdleSpin();
+        sequence.AppendCallback(() => Fire(target));
+        sequence.Append(barrel.DOLocalRotate(new Vector3(0f, 0f, targetAngle - recoilAngle), recoilKickTime)
+            .SetEase(Ease.OutQuad));
+        sequence.Append(barrel.DOLocalRotate(new Vector3(0f, 0f, targetAngle), recoilReturnTime)
+            .SetEase(Ease.InOutQuad));
+        sequence.OnComplete(() => isBusy = false);
     }
 
-    IEnumerator Recoil(float aimAngle)
+    float AimTime(BaseEnemy target)
     {
-        if (recoilAngle <= 0f) yield break;
+        float delta = Mathf.Abs(Mathf.DeltaAngle(barrel.localEulerAngles.z, AimAngle(target)));
+        return delta / Mathf.Max(1f, aimSpeed);
+    }
 
-        float kickAngle = aimAngle - recoilAngle;
-
-        for (float t = 0f; t < recoilKickTime; t += Time.deltaTime)
-        {
-            SetBarrelAngle(Mathf.LerpAngle(aimAngle, kickAngle, t / recoilKickTime));
-            yield return null;
-        }
-
-        for (float t = 0f; t < recoilReturnTime; t += Time.deltaTime)
-        {
-            SetBarrelAngle(Mathf.LerpAngle(kickAngle, aimAngle, t / recoilReturnTime));
-            yield return null;
-        }
-
-        SetBarrelAngle(aimAngle);
+    float AimAngle(BaseEnemy target)
+    {
+        // Aim in the barrel's parent space, so a rocking platform doesn't break it.
+        Vector3 localTarget = barrel.parent.InverseTransformPoint(target.transform.position);
+        Vector3 direction = localTarget - barrel.localPosition;
+        return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
     }
 
     void Fire(BaseEnemy target)
     {
-        if (projectilePrefab == null) return;
+        if (projectilePrefab == null || target == null || !target.IsAlive) return;
 
         Vector3 spawnPosition = barrel.position + barrel.right * muzzleDistance;
         var projectile = Instantiate(projectilePrefab, spawnPosition, barrel.rotation);
-        projectile.Launch(target);
+
+        // Speed chosen so the flight takes exactly shotTime seconds.
+        float distance = Vector3.Distance(spawnPosition, target.transform.position);
+        projectile.Launch(target, distance / Mathf.Max(0.01f, shotTime));
     }
 
     void SetBarrelAngle(float angle)

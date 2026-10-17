@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,6 +28,9 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
     /// <summary>Raised every time the city takes damage (shakers listen to this).</summary>
     public event System.Action Damaged;
+
+    /// <summary>The enemy the city is currently aiming at (weapon modules track it).</summary>
+    public BaseEnemy CurrentTarget { get; private set; }
 
     [SerializeField] Image initiativeFill;
     [SerializeField] Image healthFill;
@@ -155,16 +159,39 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
             return;
         }
 
-        Debug.Log($"City attacks {target.name}");
+        CurrentTarget = target;
 
-        // Damage happens exactly once, here - independent of any visual.
-        target.TakeDamage(stats.atack);
+        // Every weapon fires; the slowest one decides when the hit lands, so all
+        // projectiles arrive together with the damage.
+        var attackers = CollectAttackers();
+        float hitDelay = 0f;
 
-        // Weapon modules only play their shot for show.
-        foreach (var attacker in CollectAttackers())
+        foreach (var attacker in attackers)
         {
-            attacker.PlayAttack(target);
+            hitDelay = Mathf.Max(hitDelay, attacker.GetAttackDelay(target));
         }
+
+        foreach (var attacker in attackers)
+        {
+            attacker.PlayAttack(target, hitDelay);
+        }
+
+        Debug.Log($"City attacks {target.name} with {attackers.Count} weapon(s), hit in {hitDelay:F2}s");
+
+        // Damage is applied exactly once, independent of the visual shots.
+        if (hitDelay <= 0f) ApplyHit(target);
+        else DOVirtual.DelayedCall(hitDelay, () => ApplyHit(target));
+    }
+
+    void ApplyHit(BaseEnemy target)
+    {
+        // The chosen enemy may have died while the shot was travelling - hit another
+        // living one instead, so a filled initiative bar always results in an attack.
+        if (target == null || !target.IsAlive) target = G.Get<EnemyManager>()?.GetRandomEnemy();
+        if (target == null) return;
+
+        CurrentTarget = target;
+        target.TakeDamage(stats.atack);
 
         if (CombatRules.RollChance(stats.stanChance))
         {
@@ -250,8 +277,6 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     public void TakeDamage(int damage) { 
         int applied = Mathf.Max(damage-stats.def,1);
         curentTakeDamage += applied;
-
-        Debug.Log(curentTakeDamage);
 
         G.Get<DamagePopupSpawner>()?.ShowCityDamage(applied, transform.position);
 

@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,9 +6,6 @@ public class TurnManager : MonoBehaviour, IBootstraped
     public List<ITurner> turners = new();
 
     bool isBattleStart = false;
-
-    /// <summary>True while the battle is ticking (used e.g. by turret idle behaviour).</summary>
-    public bool IsBattleActive => isBattleStart;
 
     [SerializeField] float speedScale = 1f;
 

@@ -15,9 +15,11 @@ public class Projectile : MonoBehaviour
 
     BaseEnemy target;
 
-    public void Launch(BaseEnemy enemy)
+    public void Launch(BaseEnemy enemy, float speedOverride = -1f)
     {
         target = enemy;
+
+        if (speedOverride > 0f) speed = speedOverride;
     }
 
     void Update()
