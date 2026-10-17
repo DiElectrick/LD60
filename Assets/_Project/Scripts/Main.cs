@@ -6,6 +6,8 @@ public class Main : MonoBehaviour, IBootstraped
     public bool isInitialised { get; set; }
     [SerializeField] BaseEnemy testEnemy;
 
+    bool isBattleStage = false;
+
     public void Init()
     {
 
@@ -13,7 +15,7 @@ public class Main : MonoBehaviour, IBootstraped
 
     private void Start()
     {
-        G.Get<TurnManager>().InitBattle(new List<ITurner>() {testEnemy});
+        //G.Get<TurnManager>().InitBattle(new List<ITurner>() {testEnemy});
     }
 
 }

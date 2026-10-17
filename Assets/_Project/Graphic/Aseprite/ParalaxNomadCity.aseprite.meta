@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: ParalaxNomadCity
     originalName: 
-    pivot: {x: 0.48394495, y: -0.35805628}
+    pivot: {x: 0.51960784, y: -0.19501135}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,8 +137,8 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 436
-      height: 391
+      width: 408
+      height: 441
     spriteID: 27744f5963862eb4cb9cce99d6de800d
     spriteBone: []
     spriteOutline: []
@@ -167,10 +167,10 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 4
-        y: 140
-        width: 436
-        height: 391
+        x: 3
+        y: 86
+        width: 408
+        height: 441
       spriteId: 27744f5963862eb4cb9cce99d6de800d
     linkedCells: []
     tileCells: []
