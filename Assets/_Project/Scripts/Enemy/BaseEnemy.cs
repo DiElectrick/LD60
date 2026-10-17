@@ -7,7 +7,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
 
     public Stats Stats => enemyStats;
 
-    Stats enemyStats = new();
+    [SerializeField] Stats enemyStats = new();
 
     /// <summary>Health the enemy had when it was spawned (for the HP bar ratio).</summary>
     int maxHealth;
@@ -20,6 +20,19 @@ public class BaseEnemy : MonoBehaviour, ITurner
     void Awake()
     {
         maxHealth = enemyStats.health;
+    }
+
+    /// <summary>Called by the spawner right after the prefab was instantiated.</summary>
+    public void Bind(EnemyData data)
+    {
+        enemyStats = data.stats.Clone();
+        maxHealth = enemyStats.health;
+        isAlive = true;
+        turnFill = 0f;
+        name = data.displayName;
+
+        UpdateHealthUI();
+        UpdateInitiativeUI();
     }
 
     void OnEnable()
