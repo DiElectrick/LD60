@@ -1,9 +1,12 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
 /// Drives the gameplay loop: spawn an encounter -> fight until every enemy is dead ->
-/// show the module panel -> wait for "Next" -> start the same encounter again.
+/// victory coast (the world keeps rolling for a moment) -> the parallax brakes to a
+/// stop and the city shakes -> the module panel slides in -> "Next" -> the same
+/// encounter starts again.
 /// </summary>
 public class BattleCycle : MonoBehaviour, IBootstraped
 {
@@ -11,19 +14,40 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
     public EncounterData startingEncounter;
 
+    [Header("Victory animation")]
+    [Tooltip("How long the city keeps rolling at full speed after the last enemy dies, " +
+             "before the brake starts. Gives the victory a moment to breathe.")]
+    [Range(0f, 5f)]
+    [SerializeField] float victoryCoastDuration = 3f;
+
+    [Tooltip("How long the parallax takes to come to a full stop.")]
+    [SerializeField] float stopDuration = 1.8f;
+
+    [SerializeField] float moduleShakeAmplitude = 0.06f;
+    [SerializeField] float platformShakeAmplitude = 0.08f;
+
     TurnManager turnManager;
     EnemyManager enemyManager;
     EnemySpawner spawner;
     ModulePanelUI modulePanel;
+    ParallaxSystem parallax;
+    CityController city;
 
     EncounterData currentEncounter;
     bool isBattleRunning;
+    Tween spawnDelay;
+
+    // Victory sequence: coast (world keeps rolling) -> brake + shake -> panel.
+    Tween coastDelay;
+    Tween panelDelay;
 
     public void Init()
     {
         turnManager = G.Get<TurnManager>();
         enemyManager = G.Get<EnemyManager>();
         spawner = G.Get<EnemySpawner>();
+        city = G.Get<CityController>();
+        parallax = FindAnyObjectByType<ParallaxSystem>();
 
         modulePanel = FindAnyObjectByType<ModulePanelUI>(FindObjectsInactive.Include);
         if (modulePanel != null)
@@ -52,17 +76,38 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
         currentEncounter = encounter;
 
+        // Never keep ticking an old battle whose enemies are about to be despawned.
+        // A pending victory sequence is dropped too: the world must not brake or pop
+        // the panel open in the middle of the next fight.
+        turnManager?.StopBattle();
+        ClearVictorySequence();
+        isBattleRunning = false;
+
         // 1. spawn the enemies described by the data
         var spawnedEnemies = spawner.SpawnEncounter(encounter.enemies);
 
-        // 2. hand them to the turn order (the city is added by TurnManager itself)
+        // 2. the battle only starts once every enemy has flown into its slot
+        parallax?.ResumeScrolling();
+
+        spawnDelay?.Kill();
+        spawnDelay = DOVirtual.DelayedCall(spawner.FlyInDuration, () => BeginBattle(spawnedEnemies, encounter));
+    }
+
+    void BeginBattle(List<BaseEnemy> spawnedEnemies, EncounterData encounter)
+    {
+        // Drop anything that was destroyed while the enemies were flying in.
         var turners = new List<ITurner>();
-        foreach (var enemy in spawnedEnemies) turners.Add(enemy);
+        foreach (var enemy in spawnedEnemies)
+        {
+            if (enemy != null) turners.Add(enemy);
+        }
+
+        if (turners.Count == 0) return;
 
         turnManager.InitBattle(turners);
         isBattleRunning = true;
 
-        Debug.Log($"[Battle] Started '{encounter.displayName}' with {spawnedEnemies.Count} enemies");
+        Debug.Log($"[Battle] Started '{encounter.displayName}' with {turners.Count} enemies");
     }
 
     void Update()
@@ -77,9 +122,67 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     {
         isBattleRunning = false;
         turnManager.StopBattle();
+
+        // Dying enemies already detached themselves from the spawner, so this only
+        // clears leftovers - the falling corpses keep their death animation.
         spawner.DespawnAll();
 
-        Debug.Log("[Battle] Victory - waiting for Next");
+        ClearVictorySequence();
+
+        // The victory is not an instant stop: the city coasts on at full speed for a
+        // moment (corpses fall, the world keeps scrolling), and only then the brake
+        // kicks in. ParallaxSystem is left untouched during the coast on purpose -
+        // its speedMultiplier is exactly what "the city is moving" means.
+        float coast = Mathf.Max(0f, victoryCoastDuration);
+
+        Debug.Log($"[Battle] Victory - coasting for {coast:F2}s before the stop animation");
+
+        if (coast <= 0f) PlayStopAnimation();
+        else coastDelay = DOVirtual.DelayedCall(coast, PlayStopAnimation);
+
+        // The panel slides in once everything is still.
+        panelDelay = DOVirtual.DelayedCall(coast + stopDuration, ShowPanel);
+    }
+
+    /// <summary>Brake the world and make the city shiver while it comes to a halt.</summary>
+    void PlayStopAnimation()
+    {
+        coastDelay = null;
+
+        Debug.Log("[Battle] Braking the world to a stop");
+
+        parallax?.BrakeToStop(stopDuration);
+        ShakeCity();
+    }
+
+    /// <summary>Drops any pending victory animation (used when a new battle starts).</summary>
+    void ClearVictorySequence()
+    {
+        coastDelay?.Kill();
+        coastDelay = null;
+
+        panelDelay?.Kill();
+        panelDelay = null;
+    }
+
+    void ShakeCity()
+    {
+        if (city == null) return;
+
+        foreach (var platform in city.Platforms)
+        {
+            platform.GetComponent<Shaker>()?.Shake(platformShakeAmplitude, stopDuration);
+
+            foreach (var module in platform.Modules)
+            {
+                module.GetComponent<Shaker>()?.Shake(moduleShakeAmplitude, stopDuration);
+            }
+        }
+    }
+
+    void ShowPanel()
+    {
+        panelDelay = null;
 
         if (modulePanel != null) modulePanel.Show();
         else StartEncounter(currentEncounter);
@@ -89,5 +192,12 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     {
         // For now the next battle is the same encounter again.
         StartEncounter(currentEncounter);
+    }
+
+    void OnDestroy()
+    {
+        // Unlinked DOTween delays outlive the object, so drop them explicitly.
+        spawnDelay?.Kill();
+        ClearVictorySequence();
     }
 }

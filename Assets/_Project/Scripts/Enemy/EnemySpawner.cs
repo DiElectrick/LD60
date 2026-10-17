@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
 /// Instantiates enemies from EnemyData in a column of slots on the right side of the city.
+/// Enemies fly in from outside the screen: even slots from the right, odd slots from the top.
 /// </summary>
 public class EnemySpawner : MonoBehaviour, IBootstraped
 {
@@ -13,6 +15,15 @@ public class EnemySpawner : MonoBehaviour, IBootstraped
 
     [Tooltip("Vertical distance between slots.")]
     public float slotSpacing = 2.8f;
+
+    [Tooltip("How long the fly-in takes.")]
+    [SerializeField] float flyInDuration = 1.4f;
+
+    [Tooltip("How far outside the screen the fly-in starts.")]
+    [SerializeField] float flyInMargin = 3f;
+
+    /// <summary>Time an enemy needs to reach its slot (used to delay the battle start).</summary>
+    public float FlyInDuration => flyInDuration;
 
     readonly List<BaseEnemy> spawned = new();
 
@@ -41,12 +52,36 @@ public class EnemySpawner : MonoBehaviour, IBootstraped
         }
 
         var enemy = Instantiate(data.prefab, transform);
-        enemy.transform.position = transform.position +
+
+        Vector3 targetPosition = transform.position +
             new Vector3(firstSlot.x, firstSlot.y - slotIndex * slotSpacing, 0f);
+
+        enemy.transform.position = targetPosition + EntryOffset(slotIndex);
+        enemy.transform.DOMove(targetPosition, flyInDuration)
+            .SetEase(Ease.OutCubic)
+            .SetLink(enemy.gameObject);
 
         enemy.Bind(data);
         spawned.Add(enemy);
         return enemy;
+    }
+
+    /// <summary>Even slots fly in from the right edge, odd slots from the top edge.</summary>
+    Vector3 EntryOffset(int slotIndex)
+    {
+        var cam = Camera.main;
+        float halfHeight = cam != null ? cam.orthographicSize : 5f;
+        float halfWidth = cam != null ? halfHeight * cam.aspect : 9f;
+
+        return slotIndex % 2 == 0
+            ? new Vector3(halfWidth + flyInMargin, 0f, 0f)
+            : new Vector3(0f, halfHeight + flyInMargin, 0f);
+    }
+
+    /// <summary>Stops tracking an enemy (used by corpses, which clean themselves up).</summary>
+    public void Forget(BaseEnemy enemy)
+    {
+        if (enemy != null) spawned.Remove(enemy);
     }
 
     public void DespawnAll()

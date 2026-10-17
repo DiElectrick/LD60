@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,9 +27,65 @@ public class BaseEnemy : MonoBehaviour, ITurner
     /// <summary>The data this enemy was spawned from (used for its loot table).</summary>
     EnemyData data;
 
+    [Header("Death")]
+    [Tooltip("Animator state played when the enemy dies.")]
+    [SerializeField] string deathState = "Die";
+
+    [Tooltip("Gravity applied to the falling corpse.")]
+    [SerializeField] float fallGravity = -22f;
+
+    [Tooltip("Upward kick when the death animation starts.")]
+    [SerializeField] float fallKickUp = 2.5f;
+
+    [Tooltip("Horizontal drift while falling (negative = to the left).")]
+    [SerializeField] float fallDrift = -1.5f;
+
+    [Tooltip("How far below the camera bottom the corpse is destroyed.")]
+    [SerializeField] float destroyBelowMargin = 2f;
+
+    [Header("Attack twitch")]
+    [Tooltip("How far the enemy jumps towards the city when it attacks.")]
+    [SerializeField] float attackTwitchDistance = 0.45f;
+
+    [Tooltip("Duration of the lunge towards the city.")]
+    [SerializeField] float attackTwitchOutTime = 0.08f;
+
+    [Tooltip("Duration of the spring back into its slot.")]
+    [SerializeField] float attackTwitchBackTime = 0.22f;
+
+    Animator animator;
+    Canvas healthCanvas;
+    Vector2 fallVelocity;
+    int deathStateHash;
+
+    // Slot the enemy attacks from - the twitch always returns here.
+    Vector3 homePosition;
+    bool homeCaptured;
+    Tween attackTwitch;
+
     void Awake()
     {
         maxHealth = enemyStats.health;
+
+        animator = GetComponent<Animator>();
+        deathStateHash = Animator.StringToHash(deathState);
+
+        var canvasTransform = transform.Find("Canvas");
+        if (canvasTransform != null) healthCanvas = canvasTransform.GetComponent<Canvas>();
+    }
+
+    void Update()
+    {
+        if (isAlive) return;
+
+        // Dead enemies become a falling corpse that leaves the screen on its own.
+        fallVelocity.y += fallGravity * Time.deltaTime;
+        transform.position += new Vector3(fallDrift * Time.deltaTime, fallVelocity.y * Time.deltaTime, 0f);
+
+        var cam = Camera.main;
+        float bottom = cam != null ? cam.transform.position.y - cam.orthographicSize : -10f;
+
+        if (transform.position.y < bottom - destroyBelowMargin) Destroy(gameObject);
     }
 
     /// <summary>Called by the spawner right after the prefab was instantiated.</summary>
@@ -87,6 +144,9 @@ public class BaseEnemy : MonoBehaviour, ITurner
         var city = G.Get<CityController>();
         if (city == null) return;
 
+        // Strike: twitch towards the city the moment the hit lands.
+        PlayAttackTwitch(city);
+
         city.TakeDamage(enemyStats.atack);
 
         if (CombatRules.RollChance(enemyStats.stanChance))
@@ -94,6 +154,44 @@ public class BaseEnemy : MonoBehaviour, ITurner
             Debug.Log($"[Stun] {name} stuns the city ({enemyStats.stanChance}%)");
             city.Stun();
         }
+    }
+
+    /// <summary>
+    /// Quick lunge towards the city, played the frame the enemy attacks, followed by a
+    /// spring back into the slot it attacked from. Purely cosmetic - the damage is
+    /// applied by <see cref="OnTurn"/> no matter what happens to this tween.
+    /// </summary>
+    void PlayAttackTwitch(CityController city)
+    {
+        // The battle only starts after the fly-in, so the first attack is made from the
+        // slot - that is the anchor the enemy springs back to after every lunge.
+        if (!homeCaptured)
+        {
+            homePosition = transform.position;
+            homeCaptured = true;
+        }
+
+        // A twitch can still be running if the turns come faster than the animation.
+        attackTwitch?.Kill();
+        attackTwitch = null;
+        transform.position = homePosition;
+
+        if (attackTwitchDistance <= 0f) return;
+
+        Vector3 direction = city != null ? city.transform.position - homePosition : Vector3.left;
+
+        // Fall back to "to the left" if the city sits on top of the enemy.
+        if (direction.sqrMagnitude < 0.0001f) direction = Vector3.left;
+        direction.Normalize();
+
+        attackTwitch = DOTween.Sequence()
+            .Append(transform.DOMove(homePosition + direction * attackTwitchDistance,
+                    Mathf.Max(0.01f, attackTwitchOutTime))
+                .SetEase(Ease.OutQuad))
+            .Append(transform.DOMove(homePosition, Mathf.Max(0.01f, attackTwitchBackTime))
+                .SetEase(Ease.OutBack))
+            .SetLink(gameObject)
+            .OnComplete(() => attackTwitch = null);
     }
 
     /// <summary>Regeneration: restores a percentage of max health at the start of the turn.</summary>
@@ -145,8 +243,21 @@ public class BaseEnemy : MonoBehaviour, ITurner
 
         DropLoot();
 
-        // Deactivating fires OnDisable, which removes the enemy from the EnemyManager.
-        gameObject.SetActive(false);
+        // The battle systems drop the enemy right away; the corpse is only a visual.
+        G.Get<EnemyManager>()?.Unregister(this);
+        G.Get<EnemySpawner>()?.Forget(this);
+
+        // Stop the fly-in / attack twitch tweens, otherwise they would keep fighting the
+        // fall. The corpse then drops from its slot rather than from the middle of a lunge.
+        transform.DOKill();
+        attackTwitch = null;
+        if (homeCaptured) transform.position = homePosition;
+
+        if (animator != null) animator.Play(deathStateHash, 0, 0f);
+        if (healthCanvas != null) healthCanvas.gameObject.SetActive(false);
+
+        // Kick it slightly up, then let gravity take over in Update.
+        fallVelocity = new Vector2(fallDrift, fallKickUp);
     }
 
     void DropLoot()
