@@ -25,7 +25,19 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
     public void OnTurn()
     {
-        
+        // TEMP (testing): on its turn the city attacks one random living enemy.
+        var manager = G.Get<EnemyManager>();
+        if (manager == null) return;
+
+        var target = manager.GetRandomEnemy();
+        if (target == null)
+        {
+            Debug.Log("City turn: no enemies left");
+            return;
+        }
+
+        Debug.Log($"City attacks {target.name}");
+        target.TakeDamage(stats.atack);
     }
 
     public void AddFill(float addedFill)
