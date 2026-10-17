@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 133
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7644529716688296759, guid: cf35238f79131814a89d74f21bfd3311, type: 3}
+  m_Sprite: {fileID: -1021999893, guid: cf35238f79131814a89d74f21bfd3311, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -102,7 +102,7 @@ PrefabInstance:
     - target: {fileID: 103278589883214876, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -7293170466157348186, guid: cf35238f79131814a89d74f21bfd3311, type: 3}
+      objectReference: {fileID: -365165432, guid: cf35238f79131814a89d74f21bfd3311, type: 3}
     - target: {fileID: 3909609013962579692, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.56253
@@ -145,7 +145,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9140915923716324071, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}
       propertyPath: m_Name
-      value: EngModulePfb Variant
+      value: GunModulePfb
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

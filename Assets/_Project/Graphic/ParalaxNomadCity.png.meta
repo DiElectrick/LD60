@@ -1,0 +1,516 @@
+fileFormatVersion: 2
+guid: d074d885f25b63f4b8d95f4fa429f194
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1453917833469593691
+    second: ParalaxNomadCity_0
+  - first:
+      213: -281874297874177209
+    second: ParalaxNomadCity_1
+  - first:
+      213: 295577436112315480
+    second: ParalaxNomadCity_2
+  - first:
+      213: 7839532097334050053
+    second: ParalaxNomadCity_3
+  - first:
+      213: 6142357684076764505
+    second: ParalaxNomadCity_4
+  - first:
+      213: -5040829078578014508
+    second: ParalaxNomadCity_5
+  - first:
+      213: 5266274291549231569
+    second: ParalaxNomadCity_6
+  - first:
+      213: 6462135164289996179
+    second: ParalaxNomadCity_7
+  - first:
+      213: -2537233335614842551
+    second: ParalaxNomadCity_8
+  - first:
+      213: 933791839892418319
+    second: ParalaxNomadCity_9
+  - first:
+      213: -7435053672213264336
+    second: ParalaxNomadCity_10
+  - first:
+      213: -6672482365226266123
+    second: ParalaxNomadCity_11
+  - first:
+      213: 7060258168577242846
+    second: ParalaxNomadCity_12
+  - first:
+      213: 2442953657367854272
+    second: ParalaxNomadCity_13
+  - first:
+      213: 2631533440103727419
+    second: ParalaxNomadCity_14
+  - first:
+      213: -1531649978495799441
+    second: ParalaxNomadCity_15
+  - first:
+      213: 1610612948085786368
+    second: ParalaxNomadCity_16
+  - first:
+      213: 1938648734565139377
+    second: ParalaxNomadCity_17
+  - first:
+      213: 2774777005658656472
+    second: ParalaxNomadCity_18
+  - first:
+      213: -4587174221981427723
+    second: ParalaxNomadCity_19
+  - first:
+      213: -6219235326536079140
+    second: ParalaxNomadCity_20
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 18
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ParalaxNomadCity_0
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 323
+        width: 114
+        height: 204
+      alignment: 9
+      pivot: {x: 0.842585, y: 0.05010328}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a770730f65a2dbe0800000000000000
+      internalID: -1453917833469593691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_1
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 323
+        width: 114
+        height: 204
+      alignment: 9
+      pivot: {x: 0.15323398, y: 0.041445114}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 743a5ebc1d4961cf0800000000000000
+      internalID: -281874297874177209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_2
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 308
+        width: 52
+        height: 219
+      alignment: 9
+      pivot: {x: 0.73400235, y: 0.053959817}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8546813bc1a1a1400800000000000000
+      internalID: 295577436112315480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_3
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 216
+        width: 129
+        height: 52
+      alignment: 9
+      pivot: {x: 0.49999994, y: 0.039836884}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50d7eda28ec9bcc60800000000000000
+      internalID: 7839532097334050053
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_4
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 213
+        width: 74
+        height: 43
+      alignment: 9
+      pivot: {x: 0.48479688, y: 0.14678991}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95d59c225c90e3550800000000000000
+      internalID: 6142357684076764505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_5
+      rect:
+        serializedVersion: 2
+        x: 220
+        y: 219
+        width: 191
+        height: 93
+      alignment: 9
+      pivot: {x: 0.4966838, y: 0.0470691}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d6d5e519a06b0ab0800000000000000
+      internalID: -5040829078578014508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_6
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 140
+        width: 42
+        height: 38
+      alignment: 9
+      pivot: {x: 0.5156913, y: 0.12423425}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d95095f090951940800000000000000
+      internalID: 5266274291549231569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_7
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 148
+        width: 26
+        height: 21
+      alignment: 9
+      pivot: {x: 0.5, y: 0.16906448}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 395d01ea1bd1ea950800000000000000
+      internalID: 6462135164289996179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_8
+      rect:
+        serializedVersion: 2
+        x: 312
+        y: 164
+        width: 28
+        height: 19
+      alignment: 9
+      pivot: {x: 0.5, y: 0.12757713}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 949d56e59bfe9ccd0800000000000000
+      internalID: -2537233335614842551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_9
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 161
+        width: 35
+        height: 28
+      alignment: 9
+      pivot: {x: 0.5000009, y: 0.10513197}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0f22fe1bbe75fc00800000000000000
+      internalID: 933791839892418319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_10
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 147
+        width: 26
+        height: 16
+      alignment: 9
+      pivot: {x: 0.5161461, y: 0.14578629}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 038c3c5e31261d890800000000000000
+      internalID: -7435053672213264336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_11
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 146
+        width: 28
+        height: 17
+      alignment: 9
+      pivot: {x: 0.50716347, y: 0.15785846}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f151a224a49663a0800000000000000
+      internalID: -6672482365226266123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ParalaxNomadCity_12
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 107
+        width: 245
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed6b890c5631bf160800000000000000
+      internalID: 7060258168577242846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 0566946d80e91cf4f9a3a5200f4d9cfa
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      ParalaxNomadCity_0: -1453917833469593691
+      ParalaxNomadCity_1: -281874297874177209
+      ParalaxNomadCity_10: -7435053672213264336
+      ParalaxNomadCity_11: -6672482365226266123
+      ParalaxNomadCity_12: 7060258168577242846
+      ParalaxNomadCity_13: 2442953657367854272
+      ParalaxNomadCity_14: 2631533440103727419
+      ParalaxNomadCity_15: -1531649978495799441
+      ParalaxNomadCity_16: 1610612948085786368
+      ParalaxNomadCity_17: 1938648734565139377
+      ParalaxNomadCity_18: 2774777005658656472
+      ParalaxNomadCity_19: -4587174221981427723
+      ParalaxNomadCity_2: 295577436112315480
+      ParalaxNomadCity_20: -6219235326536079140
+      ParalaxNomadCity_21: 1145675590
+      ParalaxNomadCity_3: 7839532097334050053
+      ParalaxNomadCity_4: 6142357684076764505
+      ParalaxNomadCity_5: -5040829078578014508
+      ParalaxNomadCity_6: 5266274291549231569
+      ParalaxNomadCity_7: 6462135164289996179
+      ParalaxNomadCity_8: -2537233335614842551
+      ParalaxNomadCity_9: 933791839892418319
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
