@@ -15,7 +15,7 @@ MonoBehaviour:
   displayName: Mini Octopus
   prefab: {fileID: 7508842308260236288, guid: 62cf19ff5f554f6ba55b30fee048f3dc, type: 3}
   stats:
-    speed: 165
+    speed: 140
     health: 22
     def: 0
     atack: 2

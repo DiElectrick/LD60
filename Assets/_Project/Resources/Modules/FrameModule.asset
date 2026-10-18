@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: FrameModule
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   displayName: Frame
+  description: "Reinforced frame. More maximum health."
   prefab: {fileID: 4655930178434035712, guid: 9dc00b658a3c4c729c9939a0c79ea338, type: 3}
   bonus:
     atack: 0

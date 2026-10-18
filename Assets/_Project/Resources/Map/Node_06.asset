@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Node_06
   m_EditorClassIdentifier: Assembly-CSharp::MapNode
   displayName: Salvage Dock
-  encounter: {fileID: 11400000, guid: 37ed97ded21547ef96a2f018b773557e, type: 2}
+  encounter: {fileID: 11400000, guid: 5cfe478f8d9d468dacc7dad26e437f38, type: 2}
   stationPanels:
   - module
   - repair

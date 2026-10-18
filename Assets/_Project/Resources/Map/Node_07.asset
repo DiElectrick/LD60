@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Node_07
   m_EditorClassIdentifier: Assembly-CSharp::MapNode
   displayName: Grand Depot
-  encounter: {fileID: 11400000, guid: a6dbf9420c1222545965ec7186d880cf, type: 2}
+  encounter: {fileID: 11400000, guid: c5d2c91aef8549c7b7f8d64a2e9af982, type: 2}
   stationPanels:
   - module
   - shop

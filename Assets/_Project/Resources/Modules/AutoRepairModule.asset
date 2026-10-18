@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AutoRepairModule
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   displayName: Auto-Repair
+  description: "Welders and spares. Heals the city each turn."
   prefab: {fileID: 2076884256495252480, guid: 97b6736a805c475cb072785d402ae4c0, type: 3}
   bonus:
     atack: 0

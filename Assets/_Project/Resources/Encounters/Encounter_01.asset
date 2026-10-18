@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EncounterData
   displayName: Raiders
   enemies:
-  - {fileID: 11400000, guid: 72e75e2922e4adf428d42366ca06e0a7, type: 2}
+  - {fileID: 11400000, guid: c3a9a57ba8104afa94e90d33e3f35e26, type: 2}

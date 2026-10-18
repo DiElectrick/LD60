@@ -198,9 +198,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HealingBoss
   enemyStats:
     speed: 80
-    health: 200
+    health: 340
     def: 5
-    atack: 13
+    atack: 12
     regen: 0
     stanChance: 0
   initiativeFill: {fileID: 6659013577788172288}
@@ -218,7 +218,7 @@ MonoBehaviour:
   attackTwitchOutTime: 0.08
   attackTwitchBackTime: 0.22
   healEveryTurns: 3
-  healAmount: 18
+  healAmount: 26
   healSelf: 1
   healAllies: 1
 --- !u!212 &3388753473554953216

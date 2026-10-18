@@ -325,6 +325,12 @@ MonoBehaviour:
   holdDuration: 1.5
   endInfo: {fileID: 554156780}
   restartButton: {fileID: 572495993}
+  endTitle: {fileID: 0}
+  endSubtitle: {fileID: 0}
+  victoryTitle: RUN COMPLETE
+  victorySubtitle: THE ROAD IS CLEAR
+  defeatTitle: CITY DESTROYED
+  defeatSubtitle: THE RUN IS OVER
 --- !u!4 &91405410
 Transform:
   m_ObjectHideFlags: 0
@@ -1467,7 +1473,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74bfcf481d493b940bee5510d7d44f99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RepairButtonUI
-  amount: 25
+  amount: 30
   cost: 0
   resource: 0
   button: {fileID: 272525604}
@@ -7086,6 +7092,11 @@ MonoBehaviour:
   shopBuilding: {fileID: 2316136407800000004, guid: 42dc2d1c2148490194fc13839f9c54f5, type: 3}
   repairBuilding: {fileID: 2316136407800000014, guid: 12bd4445c45d4128abead997a2880fba, type: 3}
   stopBuildingGap: 0.7
+  deathDelay: 0.7
+  moduleExplosionGap: 0.35
+  platformExplosionDelay: 0.5
+  platformExplosionGap: 0.45
+  endScreenDelay: 0.9
   moduleShakeAmplitude: 0.06
   platformShakeAmplitude: 0.08
   travel: {fileID: 0}
@@ -7735,14 +7746,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.95, b: 0.85, a: 0.16}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -1544388178, guid: 73e4de54c1f912e47a305cdcee1f4ee0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9681,11 +9692,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CityController
   startingModules:
   - {fileID: 11400000, guid: ae450cb166ff152429a5769dab7855aa, type: 2}
-  - {fileID: 11400000, guid: 93dc9cbc97b447c4f88a411446ef376a, type: 2}
-  - {fileID: 11400000, guid: 4316a76cd196e504085aed30fdf98ef0, type: 2}
-  - {fileID: 11400000, guid: 1f40a3f11318495bbcbb5ce2b6e7aedf, type: 2}
-  - {fileID: 11400000, guid: e6121b5f29ac4940a164d0b21b9f3586, type: 2}
   startingModuleLevel: 1
+  baseStats:
+    speed: 100
+    health: 80
+    def: 0
+    atack: 10
+    regen: 0
+    stanChance: 0
   initiativeFill: {fileID: 437298255}
   healthFill: {fileID: 2001944570}
 --- !u!1 &1125743842
@@ -10070,6 +10084,7 @@ MonoBehaviour:
   fontSize: 7
   backgroundColor: {r: 0.04, g: 0.05, b: 0.08, a: 0.94}
   titleColor: {r: 1, g: 1, b: 1, a: 1}
+  descriptionColor: {r: 0.72, g: 0.72, b: 0.68, a: 1}
   mainStatColor: {r: 1, g: 0.83, b: 0.38, a: 1}
   extraStatColor: {r: 0.65, g: 0.84, b: 1, a: 1}
   font: {fileID: 11400000, guid: 606a2e050cb4b034db79b138c117ecac, type: 2}
@@ -10807,11 +10822,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleInventory
   startingModules:
-  - {fileID: 11400000, guid: ae450cb166ff152429a5769dab7855aa, type: 2}
   - {fileID: 11400000, guid: 93dc9cbc97b447c4f88a411446ef376a, type: 2}
-  - {fileID: 11400000, guid: 4316a76cd196e504085aed30fdf98ef0, type: 2}
-  - {fileID: 11400000, guid: 1f40a3f11318495bbcbb5ce2b6e7aedf, type: 2}
-  - {fileID: 11400000, guid: e6121b5f29ac4940a164d0b21b9f3586, type: 2}
   startingLevel: 1
 --- !u!1 &1356578032
 GameObject:
@@ -12517,7 +12528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74bfcf481d493b940bee5510d7d44f99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RepairButtonUI
-  amount: 75
+  amount: 100
   cost: 12
   resource: 0
   button: {fileID: 1639285497}
@@ -12614,6 +12625,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1678210258}
+  - component: {fileID: 1678210259}
   m_Layer: 0
   m_Name: === Managers ===
   m_TagString: Untagged
@@ -12646,6 +12658,29 @@ Transform:
   - {fileID: 408989361}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1678210259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1678210257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09c17a224bf94322a36b3dc888309191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExplosionFX
+  sound: {fileID: 8300000, guid: f64cedd0214d17e4590c27c39ed64ded, type: 3}
+  volume: 0.9
+  smokeTemplate: {fileID: 0}
+  particleCount: 22
+  particleLifetime: 0.55
+  sizeScale: 1
+  puffSpeed: 5
+  puffRadius: 0.35
+  sortingOrder: 12
+  fireColor: {r: 1, g: 0.82, b: 0.35, a: 1}
+  smokeColor: {r: 0.28, g: 0.24, b: 0.22, a: 0}
 --- !u!1 &1688635987 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 845301945191879600, guid: 38341108a52f2bf48b88adc5287ae5de, type: 3}
@@ -12829,9 +12864,10 @@ MonoBehaviour:
   slotSize: {x: 40, y: 25}
   priceGap: 6
   priceIconSize: 9
-  baseLevel: 2
-  levelVariance: 1
-  pricePerLevel: 3
+  baseLevel: 1
+  stopsPerLevel: 2
+  levelVariance: 0
+  pricePerLevel: 4
   priceResource: 0
   font: {fileID: 11400000, guid: 606a2e050cb4b034db79b138c117ecac, type: 2}
   textColor: {r: 1, g: 1, b: 1, a: 1}

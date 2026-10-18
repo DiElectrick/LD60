@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: HarvesterModule
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   displayName: Harvester
+  description: "Salvage rig. Brings in scrap metal every turn."
   prefab: {fileID: 8317642104999920640, guid: 46068fbb0ea9489c8eb320563638d69a, type: 3}
   bonus:
     atack: 0

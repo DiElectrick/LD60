@@ -24,9 +24,15 @@ public class RepairPanelUI : SlidingStationPanel
     [Tooltip("Colour of a button that cannot be used right now.")]
     [SerializeField] Color disabledColor = new(1f, 1f, 1f, 0.35f);
 
+    [Tooltip("A station can be used once per visit: using one option blocks the other ones too.")]
+    [SerializeField] bool oneHealPerVisit = true;
+
     readonly List<RepairButtonUI> buttons = new();
 
     bool subscribed;
+
+    /// <summary>True once this visit was spent on a heal - the panel is used up until the next stop.</summary>
+    bool healedThisVisit;
 
     /// <summary>Repair buttons of the panel, in hierarchy order (collected when it opens).</summary>
     public IReadOnlyList<RepairButtonUI> Buttons => buttons;
@@ -35,6 +41,8 @@ public class RepairPanelUI : SlidingStationPanel
 
     protected override void OnBeforeOpen(int level)
     {
+        healedThisVisit = false;
+
         CollectButtons();
         Subscribe();
         Refresh();
@@ -60,6 +68,13 @@ public class RepairPanelUI : SlidingStationPanel
 
         if (city == null || repairButton == null) return;
 
+        // One repair per visit: the second option is blocked once the station was used.
+        if (oneHealPerVisit && healedThisVisit)
+        {
+            G.Get<AudioManager>()?.PlaySfx("error");
+            return;
+        }
+
         G.Get<AudioManager>()?.PlaySfx("blipSelect");
 
         if (city.CurrentHealth >= city.Stats.health)
@@ -77,7 +92,12 @@ public class RepairPanelUI : SlidingStationPanel
             return;
         }
 
+        int before = city.CurrentHealth;
         city.Repair(repairButton.amount);
+
+        // Only a real heal spends the visit - clicking at full health changes nothing.
+        if (city.CurrentHealth > before) healedThisVisit = true;
+
         Refresh();
     }
 
@@ -88,6 +108,7 @@ public class RepairPanelUI : SlidingStationPanel
         var resources = G.Get<ResourceManager>();
 
         bool damaged = city != null && city.CurrentHealth < city.Stats.health;
+        bool used = oneHealPerVisit && healedThisVisit;
 
         foreach (var button in buttons)
         {
@@ -95,14 +116,16 @@ public class RepairPanelUI : SlidingStationPanel
 
             bool affordable = button.cost <= 0 ||
                               (resources != null && resources.Get(button.resource) >= button.cost);
-            bool usable = damaged && affordable;
+            bool usable = damaged && affordable && !used;
 
             if (button.Button != null) button.Button.interactable = usable;
             if (button.Title != null) button.Title.color = usable ? textColor : disabledColor;
 
             if (button.Price != null)
             {
-                button.Price.text = button.cost <= 0 ? "FREE" : $"{button.cost} {ShortName(button.resource)}";
+                button.Price.text = used
+                    ? "USED"
+                    : (button.cost <= 0 ? "FREE" : $"{button.cost} {ShortName(button.resource)}");
                 button.Price.color = usable ? priceColor : disabledColor;
             }
         }

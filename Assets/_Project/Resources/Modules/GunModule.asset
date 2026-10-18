@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GunModule
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   displayName: Gun
+  description: "A mounted cannon. The city's basic firepower."
   prefab: {fileID: 6382748205993348124, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
   bonus:
     atack: 5

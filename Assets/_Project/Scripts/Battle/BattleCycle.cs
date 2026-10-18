@@ -52,6 +52,26 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     [Tooltip("Free space kept between the city and the building it stops in front of.")]
     [SerializeField] float stopBuildingGap = 0.7f;
 
+    [Header("City destroyed")]
+    [Tooltip("Pause after the city dies before the first module blows up.")]
+    [SerializeField] float deathDelay = 0.7f;
+
+    [Tooltip("Time between two module explosions.")]
+    [SerializeField] float moduleExplosionGap = 0.35f;
+
+    [Tooltip("Pause after the last module, before the platforms blow up.")]
+    [SerializeField] float platformExplosionDelay = 0.5f;
+
+    [Tooltip("Time between two platform explosions.")]
+    [SerializeField] float platformExplosionGap = 0.45f;
+
+    [Tooltip("Pause after the platforms are gone before the end screen slides in.")]
+    [SerializeField] float endScreenDelay = 0.9f;
+
+    [Header("Start camp")]
+    [Tooltip("How long the world takes to come to a stop when the run starts at a camp.")]
+    [SerializeField] float campBrakeDuration = 0.6f;
+
     [SerializeField] float moduleShakeAmplitude = 0.06f;
     [SerializeField] float platformShakeAmplitude = 0.08f;
 
@@ -85,6 +105,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     int stopIndex;
     bool isBossBattle;
     bool isRunOver;
+    bool isDefeated;
 
     /// <summary>True while the station slides away and the next stop has not started yet.</summary>
     bool isAdvancing;
@@ -108,6 +129,9 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
     /// <summary>True once the boss is dead - nothing else is fought.</summary>
     public bool IsRunOver => isRunOver;
+
+    /// <summary>True once the city was destroyed - the run ended in defeat.</summary>
+    public bool IsDefeated => isDefeated;
 
     /// <summary>Node of the stop being travelled to / stood at. Null during the boss fight.</summary>
     public MapNode CurrentNode
@@ -142,6 +166,9 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         city = G.Get<CityController>();
         station = G.Get<StationController>();
         parallax = FindAnyObjectByType<ParallaxSystem>();
+
+        // Health gone = the run is over, however far along the route the city was.
+        if (city != null) city.Destroyed += OnCityDestroyed;
 
         if (travel == null)
             travel = FindAnyObjectByType<TravelTransition>(FindObjectsInactive.Include);
@@ -189,7 +216,31 @@ public class BattleCycle : MonoBehaviour, IBootstraped
                   $"boss '{NameOf(route.bossEncounter)}'");
         Debug.Log($"[Battle] Path: {DescribeRoute(route)}");
 
+        // The run can start at a camp: no fight, the station (module panel) opens right away.
+        if (CurrentNode != null && CurrentNode.isCamp)
+        {
+            BeginAtCamp(CurrentNode);
+            return;
+        }
+
         StartStopBattle();
+    }
+
+    /// <summary>Starts the run on a camp: the world is parked and the station opens without a battle.</summary>
+    void BeginAtCamp(MapNode camp)
+    {
+        Debug.Log($"[Battle] Starting at camp '{camp.displayName}' [{string.Join("+", camp.stationPanels)}]");
+
+        isBattleRunning = false;
+        spawner?.DespawnAll();
+        turnManager?.StopBattle();
+        ClearVictorySequence();
+
+        // The city stands still while the player prepares it.
+        parallax?.BrakeToStop(campBrakeDuration);
+
+        if (station != null) station.Open(camp);
+        else modulePanel?.Open(0);
     }
 
     /// <summary>Jumps to a stop of the route (debug / testing helper).</summary>
@@ -272,10 +323,118 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         Debug.Log("[Battle] Run complete - every stop cleared and the boss defeated");
 
         // The last travel keeps its screen: full bar, message and restart button.
-        if (travel != null) travel.PlayEnd(NodeProgress(StopCount), RestartRun);
-        else Debug.LogWarning("[Battle] No travel transition in the scene - no end screen");
+        ShowEndScreen(victory: true);
 
         RunCompleted?.Invoke();
+    }
+
+    // ------------------------------------------------------------------ city destroyed
+
+    /// <summary>
+    /// The city's health reached zero: the battle stops and the city falls apart module by module,
+    /// then the platforms, and finally the end screen rolls in like the travel between stops.
+    /// </summary>
+    void OnCityDestroyed()
+    {
+        if (isDefeated || isRunOver) return;
+
+        isDefeated = true;
+        isBattleRunning = false;
+
+        turnManager?.StopBattle();
+        station?.CloseAll();
+        modulePanel?.Hide();
+        ClearVictorySequence();
+
+        Debug.Log("[Battle] Defeat - the city is destroyed, the run is over");
+
+        StopAllCoroutines();
+        StartCoroutine(DeathRoutine());
+    }
+
+    System.Collections.IEnumerator DeathRoutine()
+    {
+        var fx = G.Get<ExplosionFX>();
+
+        if (deathDelay > 0f) yield return new WaitForSeconds(deathDelay);
+
+        // 1. every module blows up, one after another
+        var modules = CollectModules();
+        foreach (var module in modules)
+        {
+            if (module == null) continue;
+
+            Explode(fx, module.transform.position);
+            Destroy(module.gameObject);
+
+            if (moduleExplosionGap > 0f) yield return new WaitForSeconds(moduleExplosionGap);
+        }
+
+        if (platformExplosionDelay > 0f) yield return new WaitForSeconds(platformExplosionDelay);
+
+        // 2. then the platforms the city was standing on
+        if (city != null)
+        {
+            foreach (var platform in new List<Platform>(city.Platforms))
+            {
+                if (platform == null) continue;
+
+                Explode(fx, platform.transform.position);
+                Destroy(platform.gameObject);
+
+                if (platformExplosionGap > 0f) yield return new WaitForSeconds(platformExplosionGap);
+            }
+        }
+
+        if (endScreenDelay > 0f) yield return new WaitForSeconds(endScreenDelay);
+
+        // 3. and the run ends on the same travel screen the stops use
+        ShowEndScreen(victory: false);
+    }
+
+    /// <summary>Every module placed on the city, in platform order (snapshot - they get destroyed).</summary>
+    List<Module> CollectModules()
+    {
+        var modules = new List<Module>();
+        if (city == null) return modules;
+
+        foreach (var platform in city.Platforms)
+        {
+            if (platform == null) continue;
+
+            foreach (var module in platform.Modules)
+            {
+                if (module != null) modules.Add(module);
+            }
+        }
+
+        return modules;
+    }
+
+    static void Explode(ExplosionFX fx, Vector3 position)
+    {
+        if (fx == null) return;
+
+        fx.Play(position);
+    }
+
+    /// <summary>
+    /// The travel screen with the end message on top: the route bar at the progress of the run,
+    /// the message ("run complete" or "city destroyed") and the restart button.
+    /// </summary>
+    void ShowEndScreen(bool victory)
+    {
+        if (travel == null)
+        {
+            Debug.LogWarning("[Battle] No travel transition in the scene - no end screen");
+            return;
+        }
+
+        float progress = victory ? 1f : NodeProgress(stopIndex);
+
+        // Victory: the bar is already complete. Defeat: it fills up to the stop the city reached,
+        // which reads as "this is how far the run got".
+        travel.PlayEnd(victory ? progress : 0f, progress, RestartRun, victory);
     }
 
     /// <summary>Starts a new run: the scene is reloaded, so city, stations and route start fresh.</summary>
@@ -638,7 +797,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
     void OnNextPressed()
     {
-        if (isRunOver || isAdvancing) return;
+        if (isRunOver || isDefeated || isAdvancing) return;
 
         // A second click while the station slides away must not skip a stop.
         isAdvancing = true;
@@ -654,7 +813,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
             // The world speeds back up; the transition itself waits for the city to get going.
             parallax?.ResumeScrolling(travel.RampDuration);
 
-            travel.Play(NodeProgress(stopIndex), NodeProgress(stopIndex + 0.7f), AdvanceAfterStop);
+            travel.Play(NodeProgress(stopIndex), NodeProgress(stopIndex + 1f), AdvanceAfterStop);
             return;
         }
 
@@ -662,16 +821,16 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     }
 
     /// <summary>
-    /// Position on the travel bar, 0..1, in node units: 0 = the first stop, StopCount = the
-    /// boss. A stop is reached after its battle, so a travel only covers half the gap to the
-    /// next node - the rest of the way is the fight itself.
+    /// Position on the travel bar, 0..1, in node units: 0 = the first node of the run (the start
+    /// camp), StopCount = the boss. A travel fills exactly one node gap: when a leg is done the
+    /// bar stands at the node the city just reached.
     /// </summary>
     float NodeProgress(float nodeIndex)
     {
         int nodes = StopCount + 1;
         if (nodes <= 0) return 0f;
 
-        return Mathf.Clamp01((nodeIndex + 1f) / nodes);
+        return Mathf.Clamp01(nodeIndex / nodes);
     }
 
     void OnDestroy()
@@ -679,5 +838,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         // Unlinked DOTween delays outlive the object, so drop them explicitly.
         spawnDelay?.Kill();
         ClearVictorySequence();
+
+        if (city != null) city.Destroyed -= OnCityDestroyed;
     }
 }

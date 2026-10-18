@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f94c2542fc82344ea5659c5619e0905, type: 3}
+  m_Name: RaiderFirst
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyData
+  displayName: Raider
+  prefab: {fileID: 8081482628703105104, guid: d25ea7af93aa82b41b9e8a71e745e79d, type: 3}
+  stats:
+    speed: 90
+    health: 70
+    def: 0
+    atack: 4
+    regen: 0
+    stanChance: 0
+  drops:
+  - type: 0
+    minAmount: 4
+    maxAmount: 4

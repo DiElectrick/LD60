@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8777c140408f3df40979589f5bb961a0, type: 3}
   m_Name: EngModule
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
-  displayName: Engineering
+  displayName: Engine
+  description: "Pulls the caravan: speed and a bit of armour."
   prefab: {fileID: 2368992404664728886, guid: 6a3434f37ad55f247b823cfe915a7664, type: 3}
   bonus:
     atack: 0

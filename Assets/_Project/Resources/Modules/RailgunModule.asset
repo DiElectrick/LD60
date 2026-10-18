@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: RailgunModule
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   displayName: Railgun
+  description: "Long-barrel beam gun. Heavy hit, and it can stun."
   prefab: {fileID: 501709808337558770, guid: 77fdf8a1ae801884997bb81f9fc21505, type: 3}
   bonus:
     atack: 8

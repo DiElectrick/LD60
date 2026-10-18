@@ -49,13 +49,18 @@ public class ShopPanelUI : SlidingStationPanel
     [SerializeField] float priceIconSize = 9f;
 
     [Header("Levels")]
-    [Tooltip("Base level of the offered items when the station level is 0.")]
-    [Range(1, 3)]
-    [SerializeField] int baseLevel = 2;
+    [Tooltip("Item level the first shop of the run offers.")]
+    [Min(1)]
+    [SerializeField] int baseLevel = 1;
 
-    [Tooltip("Every offer rolls baseLevel ± levelVariance (clamped to the generator's level range).")]
+    [Tooltip("How many stops it takes before the shop offers one level higher - the shop gets " +
+             "better as the run goes on.")]
+    [Min(1)]
+    [SerializeField] int stopsPerLevel = 2;
+
+    [Tooltip("Random level spread around the shop's level. 0 = exactly the shop level.")]
     [Range(0, 2)]
-    [SerializeField] int levelVariance = 1;
+    [SerializeField] int levelVariance = 0;
 
     [Header("Price")]
     [Tooltip("Cost per item level. 0 = the shop is free.")]
@@ -113,16 +118,29 @@ public class ShopPanelUI : SlidingStationPanel
         }
     }
 
-    /// <summary>Item level of one offer: the station level ± <see cref="levelVariance"/>.</summary>
+    /// <summary>
+    /// Item level of one offer: it climbs with the run (<see cref="stopsPerLevel"/>), the node may
+    /// demand a higher tier, and the variance adds a little spread.
+    /// </summary>
     int OfferLevel()
     {
-        int variance = Mathf.Max(0, levelVariance);
-        int level = openLevel + Random.Range(-variance, variance + 1);
-
         var generator = ModuleGenerator.Instance;
         int max = generator != null ? generator.Config.MaxLevel : 3;
 
+        int level = baseLevel + StopsTravelled() / Mathf.Max(1, stopsPerLevel);
+        level = Mathf.Max(level, openLevel);
+
+        int variance = Mathf.Max(0, levelVariance);
+        if (variance > 0) level += Random.Range(-variance, variance + 1);
+
         return Mathf.Clamp(level, 1, Mathf.Max(1, max));
+    }
+
+    /// <summary>How far the run has come - the shop's level grows with it.</summary>
+    static int StopsTravelled()
+    {
+        var cycle = G.Get<BattleCycle>();
+        return cycle != null ? cycle.StopIndex : 0;
     }
 
     public int Price(ModuleInstance item)

@@ -151,7 +151,7 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
         // --- main stat: the characteristic this archetype is about ---
         var mainStat = ResolveMainStat(data);
         var mainRule = cfg.GetRule(mainStat);
-        int mainValue = Scale(tuning.RollMainValue(), mainRule.valueScale);
+        int mainValue = Scale(tuning.RollMainValue(), mainRule, itemLevel);
 
         if (mainValue > 0) instance.AddRoll(mainStat, mainValue, true);
 
@@ -166,7 +166,7 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
                 var rule = TakeWeighted(candidates);
                 if (rule == null) break;
 
-                int value = Scale(tuning.RollExtraValue(), rule.valueScale);
+                int value = Scale(tuning.RollExtraValue(), rule, itemLevel);
                 instance.AddRoll(rule.stat, value, false);
             }
         }
@@ -294,12 +294,21 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
         return last;
     }
 
-    /// <summary>Applies the stat's value scale; a successful roll is never worth 0.</summary>
-    static int Scale(int rolled, float valueScale)
+    /// <summary>
+    /// Turns a raw roll into the stat value: the stat's own scale, then its per-level multiplier
+    /// (so damage and speed grow much faster than, say, regeneration). Never returns 0 for a
+    /// successful roll.
+    /// </summary>
+    static int Scale(int rolled, StatRule rule, int level)
     {
-        if (rolled <= 0 || valueScale <= 0f) return 0;
+        if (rolled <= 0 || rule == null || rule.valueScale <= 0f) return 0;
 
-        return Mathf.Max(1, Mathf.RoundToInt(rolled * valueScale));
+        float levelFactor = Mathf.Pow(Mathf.Max(0.01f, rule.levelScale), Mathf.Max(0, level - 1));
+        float value = rolled * rule.valueScale * levelFactor;
+
+        if (value <= 0f) return 0;
+
+        return Mathf.Max(1, Mathf.RoundToInt(value));
     }
 
     static bool IsRollable(LevelTuning tuning, ModuleGenerationConfig cfg)

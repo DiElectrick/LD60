@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ShieldMod
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   displayName: Shield
+  description: "Hull plating. Raises the city's defence."
   prefab: {fileID: 7465550697895937095, guid: fa542c5574d6b0d4a83e897211bc4cfe, type: 3}
   bonus:
     atack: 0

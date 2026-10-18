@@ -59,6 +59,11 @@ public class StatRule
     [Min(0f)]
     public float valueScale = 1f;
 
+    [Tooltip("Extra multiplier for every level above 1: 1.35 = +35% per level. Damage and speed " +
+             "grow much faster than flat stats like regen, so a level feels different per stat.")]
+    [Min(0.01f)]
+    public float levelScale = 1.25f;
+
     [Tooltip("Can this stat be the main stat of an item?")]
     public bool canBeMain = true;
 
@@ -201,24 +206,29 @@ public class ModuleGenerationConfig : ScriptableObject
     /// <summary>Built-in values used by a fresh config and as a fallback for missing rows.</summary>
     public static class Defaults
     {
-        /// <summary>The shipped balance curve: main buff grows with the level, extras get more likely.</summary>
+        /// <summary>
+        /// The shipped balance curve: the raw roll grows a little with the level, the real growth
+        /// comes from each stat's own <see cref="StatRule.levelScale"/> (damage and speed scale
+        /// much faster than regen), and extras get more likely with the level.
+        /// </summary>
         public static LevelTuning Tuning(int level)
         {
             int clamped = Mathf.Clamp(level, 1, DefaultMaxLevel);
             float progress = DefaultMaxLevel > 1 ? (clamped - 1) / (float)(DefaultMaxLevel - 1) : 0f;
 
-            // Main affix: +2..4 at level 1, +4..6 at level 3.
-            int mainMin = 2 + (clamped - 1);
-            int mainMax = 4 + (clamped - 1);
+            // Raw roll: 3..4 at level 1, 6..8 at level 2, 10..13 at level 3.
+            int mainMin = clamped <= 1 ? 3 : (clamped == 2 ? 6 : 10);
+            int mainMax = clamped <= 1 ? 4 : (clamped == 2 ? 8 : 13);
 
             return new LevelTuning
             {
                 level = clamped,
                 mainRange = new Vector2Int(mainMin, mainMax),
-                extraChance = Mathf.Lerp(0.1f, 0.3f, progress),
-                extraCount = clamped <= 2 ? new Vector2Int(1, 1) : new Vector2Int(1, 2),
-                extraValue = clamped <= 2 ? new Vector2Int(1, 2) : new Vector2Int(1, 3),
-                weight = Mathf.Lerp(30f, 20f, progress),
+                extraChance = Mathf.Lerp(0.1f, 0.55f, progress),
+                extraCount = clamped <= 1 ? new Vector2Int(1, 1)
+                    : (clamped == 2 ? new Vector2Int(1, 2) : new Vector2Int(2, 3)),
+                extraValue = new Vector2Int(1, 2),
+                weight = clamped <= 1 ? 35f : (clamped == 2 ? 40f : 25f),
             };
         }
 
@@ -226,16 +236,16 @@ public class ModuleGenerationConfig : ScriptableObject
         {
             switch (stat)
             {
-                case StatType.Atack: return new StatRule { stat = stat, weight = 1f, valueScale = 1f, canBeMain = true, canBeExtra = true };
-                case StatType.Speed: return new StatRule { stat = stat, weight = 0.9f, valueScale = 0.5f, canBeMain = true, canBeExtra = true };
-                case StatType.Health: return new StatRule { stat = stat, weight = 0.8f, valueScale = 3f, canBeMain = true, canBeExtra = true };
-                case StatType.Def: return new StatRule { stat = stat, weight = 0.7f, valueScale = 0.5f, canBeMain = true, canBeExtra = true };
-                case StatType.Regen: return new StatRule { stat = stat, weight = 0.5f, valueScale = 0.2f, canBeMain = true, canBeExtra = true };
-                case StatType.StanChance: return new StatRule { stat = stat, weight = 0.45f, valueScale = 0.3f, canBeMain = true, canBeExtra = true };
-                // Scrap is income, not a battle number: half the rolled range keeps a
-                // harvester from out-earning the loot of a whole encounter.
-                case StatType.Harvest: return new StatRule { stat = stat, weight = 0.35f, valueScale = 0.5f, canBeMain = true, canBeExtra = true };
-                default: return new StatRule { stat = stat, weight = 0f, valueScale = 1f, canBeMain = false, canBeExtra = false };
+                // Damage and speed are the "carry" stats: they scale hardest with the level.
+                case StatType.Atack: return new StatRule { stat = stat, weight = 1f, valueScale = 1f, levelScale = 1.35f, canBeMain = true, canBeExtra = true };
+                case StatType.Speed: return new StatRule { stat = stat, weight = 0.9f, valueScale = 0.45f, levelScale = 1.35f, canBeMain = true, canBeExtra = true };
+                case StatType.Health: return new StatRule { stat = stat, weight = 0.9f, valueScale = 4f, levelScale = 1.3f, canBeMain = true, canBeExtra = true };
+                case StatType.Def: return new StatRule { stat = stat, weight = 0.7f, valueScale = 0.45f, levelScale = 1.3f, canBeMain = true, canBeExtra = true };
+                // Regen, stun and scrap stay close to flat: they are utility, not damage.
+                case StatType.Regen: return new StatRule { stat = stat, weight = 0.5f, valueScale = 0.25f, levelScale = 1.1f, canBeMain = true, canBeExtra = true };
+                case StatType.StanChance: return new StatRule { stat = stat, weight = 0.4f, valueScale = 0.2f, levelScale = 1.15f, canBeMain = true, canBeExtra = true };
+                case StatType.Harvest: return new StatRule { stat = stat, weight = 0.35f, valueScale = 0.25f, levelScale = 1.1f, canBeMain = true, canBeExtra = true };
+                default: return new StatRule { stat = stat, weight = 0f, valueScale = 1f, levelScale = 1f, canBeMain = false, canBeExtra = false };
             }
         }
 

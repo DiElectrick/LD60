@@ -12,6 +12,10 @@ public class ModuleData : ScriptableObject
 {
     public string displayName = "Module";
 
+    [Tooltip("One line shown under the name in the item tooltip: what the module is for.")]
+    [TextArea(1, 3)]
+    public string description = "";
+
     [Tooltip("Prefab that is instantiated in the scene to display this module.")]
     public Module prefab;
 

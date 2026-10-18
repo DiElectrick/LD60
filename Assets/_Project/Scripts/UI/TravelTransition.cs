@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -74,11 +75,28 @@ public class TravelTransition : MonoBehaviour
     [SerializeField] float holdDuration = 0.7f;
 
     [Header("End of run")]
-    [Tooltip("Message + restart button shown when the boss is dead. Empty = nothing is shown.")]
+    [Tooltip("Message + restart button shown when the run is over. Empty = nothing is shown.")]
     [SerializeField] RectTransform endInfo;
 
     [Tooltip("Restart button of the end screen. Empty = found by name below the end info.")]
     [SerializeField] Button restartButton;
+
+    [Tooltip("Title label of the end screen. Empty = first text under the end info.")]
+    [SerializeField] TMP_Text endTitle;
+
+    [Tooltip("Subtitle label of the end screen. Empty = second text under the end info.")]
+    [SerializeField] TMP_Text endSubtitle;
+
+    [Header("End of run texts")]
+    [Tooltip("Shown when the boss was beaten.")]
+    [SerializeField] string victoryTitle = "RUN COMPLETE";
+
+    [SerializeField] string victorySubtitle = "THE ROAD IS CLEAR";
+
+    [Tooltip("Shown when the city was destroyed on the way.")]
+    [SerializeField] string defeatTitle = "CITY DESTROYED";
+
+    [SerializeField] string defeatSubtitle = "THE RUN IS OVER";
 
     Vector3 coveredPosition;
     CanvasGroup endGroup;
@@ -159,16 +177,31 @@ public class TravelTransition : MonoBehaviour
     /// Plays the same travel for the end of the run: the bar is shown (already full) and the
     /// end message with the restart button stays up until <paramref name="restart"/> is used.
     /// </summary>
-    public void PlayEnd(float fill, Action restart)
+    public void PlayEnd(float fill, Action restart, bool victory = true)
+    {
+        PlayEnd(fill, fill, restart, victory);
+    }
+
+    /// <summary>
+    /// End of the run, with the bar animating from <paramref name="from"/> to
+    /// <paramref name="to"/>. <paramref name="victory"/> picks the message: run complete or
+    /// the city destroyed.
+    /// </summary>
+    public void PlayEnd(float from, float to, Action restart, bool victory)
     {
         if (!CanPlay) return;
+
+        SetEndTexts(victory);
 
         restartAction = restart;
         isPlaying = true;
         StopAllCoroutines();
 
-        Debug.Log("[Travel] End of the run - showing the complete route");
-        StartCoroutine(TravelRoutine(fill, fill, null, true));
+        Debug.Log(victory
+            ? "[Travel] End of the run - showing the complete route"
+            : $"[Travel] Defeat - showing the run up to {Mathf.Clamp01(to):P0}");
+
+        StartCoroutine(TravelRoutine(from, to, null, true));
     }
 
     IEnumerator TravelRoutine(float from, float to, Action onArrived, bool end)
@@ -339,6 +372,26 @@ public class TravelTransition : MonoBehaviour
 
         // The restart button must be clickable.
         if (screenGroup != null) screenGroup.blocksRaycasts = true;
+    }
+
+    /// <summary>
+    /// Fills the end screen message. The labels are picked up from the end info when they are
+    /// not assigned (first text = title, second = subtitle).
+    /// </summary>
+    void SetEndTexts(bool victory)
+    {
+        if (endInfo == null) return;
+
+        if (endTitle == null || endSubtitle == null)
+        {
+            var texts = endInfo.GetComponentsInChildren<TMP_Text>(true);
+
+            if (endTitle == null && texts.Length > 0) endTitle = texts[0];
+            if (endSubtitle == null && texts.Length > 1) endSubtitle = texts[1];
+        }
+
+        if (endTitle != null) endTitle.text = victory ? victoryTitle : defeatTitle;
+        if (endSubtitle != null) endSubtitle.text = victory ? victorySubtitle : defeatSubtitle;
     }
 
     void HideScreen()

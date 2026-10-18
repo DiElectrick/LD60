@@ -19,6 +19,10 @@ public class MapNode : ScriptableObject
 
     public string displayName = "Node";
 
+    [Tooltip("A camp: the run starts here. The station opens without a battle, so the player can " +
+             "prepare the city before the first fight (usually just the module panel).")]
+    public bool isCamp;
+
     [Tooltip("Battle fought on the way to this stop. Empty = the battle cycle's fallback encounter.")]
     public EncounterData encounter;
 

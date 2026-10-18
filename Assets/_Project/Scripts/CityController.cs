@@ -18,7 +18,11 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     // Platforms are found in the scene, sorted left to right -> they form the grid columns.
     List<Platform> platforms = new();
 
+    [Header("Starting stats")]
+    [Tooltip("Stats the city has before any module is placed. Modules add on top of these.")]
+    [SerializeField]
     Stats baseStats = new Stats();
+
     Stats stats = new Stats();
 
     /// <summary>
@@ -41,6 +45,12 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
     /// <summary>Raised every time the city takes damage (shakers listen to this).</summary>
     public event System.Action Damaged;
+
+    /// <summary>Raised once, when the city's health reaches zero.</summary>
+    public event System.Action Destroyed;
+
+    /// <summary>True once the city has been reduced to zero health - it takes no more turns.</summary>
+    public bool IsDestroyed { get; private set; }
 
     /// <summary>The enemy the city is currently aiming at (weapon modules track it).</summary>
     public BaseEnemy CurrentTarget { get; private set; }
@@ -214,6 +224,9 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
     void ApplyHit(BaseEnemy target)
     {
+        // A shot still travelling when the city fell must not land after the death sequence.
+        if (IsDestroyed) return;
+
         // The chosen enemy may have died while the shot was travelling - hit another
         // living one instead, so a filled initiative bar always results in an attack.
         if (target == null || !target.IsAlive) target = G.Get<EnemyManager>()?.GetRandomEnemy();
@@ -344,7 +357,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     /// </summary>
     public void Repair(int amount)
     {
-        if (amount <= 0) return;
+        if (amount <= 0 || IsDestroyed) return;
 
         int before = curentTakeDamage;
         curentTakeDamage = Mathf.Max(0, curentTakeDamage - amount);
@@ -369,6 +382,9 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
     public void AddFill(float addedFill)
     {
+        // A destroyed city does not take turns any more - the death sequence owns the screen.
+        if (IsDestroyed) return;
+
         turnFill += addedFill * (float)stats.speed / 100f;
         UpdateInitiativeUI();
         if (turnFill >= 1f) {
@@ -399,7 +415,9 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         healthFill.fillAmount = (float)(stats.health-curentTakeDamage)/((float)stats.health);
     }
 
-    public void TakeDamage(int damage) { 
+    public void TakeDamage(int damage) {
+        if (IsDestroyed) return;
+
         int applied = Mathf.Max(damage-stats.def,1);
         curentTakeDamage += applied;
 
@@ -408,5 +426,15 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
         UpdateHealthUI();
         Damaged?.Invoke();
+
+        if (CurrentHealth > 0) return;
+
+        // Health is gone: the city is destroyed once, and the run goes to its death sequence.
+        IsDestroyed = true;
+        turnFill = 0f;
+        UpdateInitiativeUI();
+
+        Debug.Log("[City] Destroyed - the city ran out of health");
+        Destroyed?.Invoke();
     }
 }

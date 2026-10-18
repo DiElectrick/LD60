@@ -60,6 +60,7 @@ public class ModuleTooltipUI : MonoBehaviour
 
     [SerializeField] Color backgroundColor = new(0.04f, 0.05f, 0.08f, 0.94f);
     [SerializeField] Color titleColor = Color.white;
+    [SerializeField] Color descriptionColor = new(0.72f, 0.72f, 0.68f, 1f);
     [SerializeField] Color mainStatColor = new(1f, 0.83f, 0.38f);
     [SerializeField] Color extraStatColor = new(0.65f, 0.84f, 1f);
 
@@ -185,12 +186,22 @@ public class ModuleTooltipUI : MonoBehaviour
 
     string BuildText(ModuleInstance item)
     {
-        var text = new StringBuilder(96);
+        var text = new StringBuilder(128);
 
         // Title: "Gun Lv.2", a bit larger than the body.
         text.Append("<size=+2><b><color=#").Append(ColorUtility.ToHtmlStringRGB(titleColor)).Append(">");
         text.Append(item.DisplayName);
         text.Append("</color></b></size>");
+
+        // What the module is for, in one short line.
+        var description = item.Data != null ? item.Data.description : null;
+        if (!string.IsNullOrWhiteSpace(description))
+        {
+            text.Append('\n');
+            text.Append("<size=-1><color=#").Append(ColorUtility.ToHtmlStringRGB(descriptionColor)).Append(">");
+            text.Append(description);
+            text.Append("</color></size>");
+        }
 
         foreach (var roll in item.Rolls)
         {
@@ -202,8 +213,6 @@ public class ModuleTooltipUI : MonoBehaviour
             text.Append(roll.value >= 0 ? " +" : " -");
             text.Append(Mathf.Abs(roll.value));
             text.Append("</color>");
-
-            if (roll.isMain) text.Append(" <size=-1><i>main</i></size>");
         }
 
         if (item.Rolls.Count == 0) text.Append("\n<size=-1><i>no bonuses</i></size>");

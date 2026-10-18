@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapRoute
   displayName: First Run
   stops:
+  - {fileID: 11400000, guid: f9dcb54eba7f41f1a8c3e0ad84bf415a, type: 2}
   - {fileID: 11400000, guid: f3d130d279a42c842beb654e7952c845, type: 2}
   - {fileID: 11400000, guid: c969bcc058febd747a15185c693a3007, type: 2}
   - {fileID: 11400000, guid: e9c3f90e790f4366ad55afcf99aed98c, type: 2}
