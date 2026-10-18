@@ -5,14 +5,17 @@ using UnityEngine;
 /// <summary>
 /// Drives the gameplay loop: spawn an encounter -> fight until every enemy is dead ->
 /// victory coast (the world keeps rolling for a moment) -> the parallax brakes to a
-/// stop and the city shakes -> the module panel slides in -> "Next" -> the same
-/// encounter starts again.
+/// stop and the city shakes -> the station of the current map node opens (module panel
+/// plus whatever else the node lists, e.g. the shop) -> "Next" -> the next encounter.
 /// </summary>
 public class BattleCycle : MonoBehaviour, IBootstraped
 {
     public bool isInitialised { get; set; }
 
     public EncounterData startingEncounter;
+
+    [Tooltip("Map node the game starts on. When empty, the first MapNode in Resources/Map is used.")]
+    [SerializeField] MapNode startingNode;
 
     [Header("Victory animation")]
     [Tooltip("How long the city keeps rolling at full speed after the last enemy dies, " +
@@ -30,6 +33,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     EnemyManager enemyManager;
     EnemySpawner spawner;
     ModulePanelUI modulePanel;
+    StationController station;
     ParallaxSystem parallax;
     CityController city;
 
@@ -37,9 +41,45 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     bool isBattleRunning;
     Tween spawnDelay;
 
-    // Victory sequence: coast (world keeps rolling) -> brake + shake -> panel.
+    // Victory sequence: coast (world keeps rolling) -> brake + shake -> station.
     Tween coastDelay;
     Tween panelDelay;
+
+    static MapNode defaultNode;
+
+    /// <summary>
+    /// Map node the city is currently at. The map sets this when it moves between nodes;
+    /// the station that opens after a stop comes from it.
+    /// </summary>
+    public MapNode CurrentNode { get; set; }
+
+    /// <summary>The node in use: an explicitly set one, the starting node, or a Resources fallback.</summary>
+    public MapNode Node
+    {
+        get
+        {
+            if (CurrentNode != null) return CurrentNode;
+            if (startingNode != null) return startingNode;
+
+            if (defaultNode == null)
+            {
+                var nodes = Resources.LoadAll<MapNode>(MapNode.ResourceFolder);
+                if (nodes.Length > 0) defaultNode = nodes[0];
+            }
+
+            return defaultNode;
+        }
+    }
+
+    /// <summary>Encounter of the current node (or the authored starting encounter).</summary>
+    public EncounterData CurrentEncounter
+    {
+        get
+        {
+            var node = Node;
+            return node != null && node.encounter != null ? node.encounter : startingEncounter;
+        }
+    }
 
     public void Init()
     {
@@ -47,6 +87,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         enemyManager = G.Get<EnemyManager>();
         spawner = G.Get<EnemySpawner>();
         city = G.Get<CityController>();
+        station = G.Get<StationController>();
         parallax = FindAnyObjectByType<ParallaxSystem>();
 
         modulePanel = FindAnyObjectByType<ModulePanelUI>(FindObjectsInactive.Include);
@@ -63,7 +104,16 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
     void Start()
     {
-        StartEncounter(startingEncounter);
+        StartEncounter(CurrentEncounter);
+    }
+
+    /// <summary>Moves the city to a map node: fights its encounter and opens its station afterwards.</summary>
+    public void EnterNode(MapNode node)
+    {
+        CurrentNode = node;
+
+        station?.CloseAll();
+        StartEncounter(CurrentEncounter);
     }
 
     public void StartEncounter(EncounterData encounter)
@@ -141,7 +191,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         else coastDelay = DOVirtual.DelayedCall(coast, PlayStopAnimation);
 
         // The panel slides in once everything is still.
-        panelDelay = DOVirtual.DelayedCall(coast + stopDuration, ShowPanel);
+        panelDelay = DOVirtual.DelayedCall(coast + stopDuration, ShowStation);
     }
 
     /// <summary>Brake the world and make the city shiver while it comes to a halt.</summary>
@@ -180,18 +230,36 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         }
     }
 
-    void ShowPanel()
+    /// <summary>
+    /// Opens the station of the current map node: the module panel plus whatever else the
+    /// node lists (the shop on a normal stop). Falls back to the module panel alone.
+    /// </summary>
+    void ShowStation()
     {
         panelDelay = null;
 
-        if (modulePanel != null) modulePanel.Show();
-        else StartEncounter(currentEncounter);
+        if (station != null && Node != null)
+        {
+            Debug.Log($"[Battle] Station of '{Node.displayName}': {string.Join(", ", Node.stationPanels)}");
+            station.Open(Node);
+            return;
+        }
+
+        if (modulePanel != null)
+        {
+            modulePanel.Open(0);
+            return;
+        }
+
+        StartEncounter(CurrentEncounter);
     }
 
     void OnNextPressed()
     {
-        // For now the next battle is the same encounter again.
-        StartEncounter(currentEncounter);
+        // Closing the station first, so the shop slides away with the module panel.
+        station?.CloseAll();
+
+        StartEncounter(CurrentEncounter);
     }
 
     void OnDestroy()

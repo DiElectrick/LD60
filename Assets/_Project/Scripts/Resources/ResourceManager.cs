@@ -38,6 +38,17 @@ public class ResourceManager : MonoBehaviour, IBootstraped
         Changed?.Invoke(type, resources[type]);
     }
 
+    /// <summary>Spends resources if the bank has enough; returns false when it does not.</summary>
+    public bool TrySpend(ResourceType type, int amount)
+    {
+        if (amount <= 0) return true;
+        if (Get(type) < amount) return false;
+
+        resources[type] = Get(type) - amount;
+        Changed?.Invoke(type, resources[type]);
+        return true;
+    }
+
     /// <summary>Rolls every drop of a defeated enemy and adds it to the bank.</summary>
     public void AddDrops(IReadOnlyList<ResourceDrop> drops)
     {

@@ -21,3 +21,8 @@ MonoBehaviour:
     def: 0
     regen: 0
     stanChance: 0
+  recycleRecipe:
+  - type: 0
+    minAmount: 2
+    maxAmount: 3
+  recyclePerLevel: 0.35

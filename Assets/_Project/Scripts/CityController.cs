@@ -12,6 +12,9 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     [Tooltip("Modules placed on the city when the game starts.")]
     [SerializeField] List<ModuleData> startingModules = new();
 
+    [Tooltip("Level the starting modules are generated at. 0 = roll a level from the table.")]
+    [SerializeField] int startingModuleLevel = 1;
+
     // Platforms are found in the scene, sorted left to right -> they form the grid columns.
     List<Platform> platforms = new();
 
@@ -51,8 +54,9 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
         foreach (var data in startingModules)
         {
-            if (AddModule(data) == null)
-                Debug.LogWarning($"[City] Could not place starting module '{data.name}'");
+            var instance = ModuleGenerator.Instance.Generate(data, startingModuleLevel);
+            if (instance == null || AddModule(instance) == null)
+                Debug.LogWarning($"[City] Could not place starting module '{data?.name}'");
         }
     }
 
@@ -65,31 +69,38 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
     // ------------------------------------------------------------------ modules
 
-    /// <summary>Adds a module to the first platform that still has a free slot.</summary>
-    public Module AddModule(ModuleData data)
+    /// <summary>Adds a generated module to the first platform that still has a free slot.</summary>
+    public Module AddModule(ModuleInstance instance)
     {
-        if (data == null || data.prefab == null)
+        if (instance == null || instance.Data == null)
         {
-            Debug.LogWarning("[City] ModuleData (or its prefab) is missing");
+            Debug.LogWarning("[City] Module instance (or its data) is missing");
             return null;
         }
 
         foreach (var platform in platforms)
         {
-            if (!platform.IsFull) return AddModule(data, platform);
+            if (!platform.IsFull) return AddModule(instance, platform);
         }
 
-        Debug.LogWarning($"[City] No free slot for module '{data.displayName}'");
+        Debug.LogWarning($"[City] No free slot for module '{instance.DisplayName}'");
         return null;
     }
 
     /// <summary>Instantiates the module prefab and puts it on the given platform.</summary>
-    public Module AddModule(ModuleData data, Platform platform)
+    public Module AddModule(ModuleInstance instance, Platform platform)
     {
-        if (data == null || data.prefab == null || platform == null) return null;
+        if (instance == null || instance.Data == null || platform == null) return null;
+
+        var data = instance.Data;
+        if (data.prefab == null)
+        {
+            Debug.LogWarning($"[City] ModuleData '{data.name}' has no prefab");
+            return null;
+        }
 
         var module = Instantiate(data.prefab);
-        module.Bind(data);
+        module.Bind(instance);
 
         if (!platform.TryAdd(module))
         {
@@ -97,7 +108,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
             return null;
         }
 
-        Debug.Log($"[City] Added module '{data.displayName}' to {platform.name} ({platform.Count}/{Platform.MaxModules})");
+        Debug.Log($"[City] Added module '{instance.DisplayName}' to {platform.name} ({platform.Count}/{Platform.MaxModules})");
         RecalculateStats();
         ModulesChanged?.Invoke();
         return module;

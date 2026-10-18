@@ -6,8 +6,9 @@ using UnityEngine.UI;
 /// <summary>
 /// The module panel shown after a victory. It slides in from below the screen and
 /// is otherwise a passive view: it raises OnNext and the BattleCycle decides what happens.
+/// It is one of the station panels a <see cref="MapNode"/> can open.
 /// </summary>
-public class ModulePanelUI : MonoBehaviour
+public class ModulePanelUI : StationPanel
 {
     public Button nextButton;
 
@@ -23,6 +24,18 @@ public class ModulePanelUI : MonoBehaviour
     RectTransform rect;
     Vector2 visiblePosition;
     bool positionCaptured;
+
+    public override bool IsOpen => gameObject.activeSelf;
+
+    public override void Open(int level)
+    {
+        Show();
+    }
+
+    public override void Close()
+    {
+        Hide();
+    }
 
     void Awake()
     {

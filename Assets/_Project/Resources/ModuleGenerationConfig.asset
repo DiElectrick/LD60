@@ -1,0 +1,108 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21b5f01869833ea45ac17e97f7a9aab1, type: 3}
+  m_Name: ModuleGenerationConfig
+  m_EditorClassIdentifier: Assembly-CSharp::ModuleGenerationConfig
+  minLevel: 1
+  maxLevel: 10
+  levels:
+  - level: 1
+    mainRange: {x: 2, y: 4}
+    extraChance: 0.1
+    extraCount: {x: 1, y: 1}
+    extraValue: {x: 1, y: 2}
+    weight: 30
+  - level: 2
+    mainRange: {x: 3, y: 5}
+    extraChance: 0.2
+    extraCount: {x: 1, y: 1}
+    extraValue: {x: 1, y: 2}
+    weight: 25
+  - level: 3
+    mainRange: {x: 4, y: 6}
+    extraChance: 0.3
+    extraCount: {x: 1, y: 2}
+    extraValue: {x: 1, y: 3}
+    weight: 20
+  - level: 4
+    mainRange: {x: 5, y: 8}
+    extraChance: 0.4
+    extraCount: {x: 1, y: 2}
+    extraValue: {x: 2, y: 3}
+    weight: 16
+  - level: 5
+    mainRange: {x: 6, y: 9}
+    extraChance: 0.5
+    extraCount: {x: 1, y: 2}
+    extraValue: {x: 2, y: 4}
+    weight: 13
+  - level: 6
+    mainRange: {x: 7, y: 11}
+    extraChance: 0.6
+    extraCount: {x: 1, y: 2}
+    extraValue: {x: 2, y: 4}
+    weight: 10
+  - level: 7
+    mainRange: {x: 8, y: 12}
+    extraChance: 0.7
+    extraCount: {x: 1, y: 3}
+    extraValue: {x: 3, y: 5}
+    weight: 8
+  - level: 8
+    mainRange: {x: 9, y: 14}
+    extraChance: 0.75
+    extraCount: {x: 1, y: 3}
+    extraValue: {x: 3, y: 5}
+    weight: 6
+  - level: 9
+    mainRange: {x: 10, y: 15}
+    extraChance: 0.8
+    extraCount: {x: 1, y: 3}
+    extraValue: {x: 3, y: 6}
+    weight: 4
+  - level: 10
+    mainRange: {x: 12, y: 18}
+    extraChance: 0.9
+    extraCount: {x: 1, y: 3}
+    extraValue: {x: 4, y: 7}
+    weight: 2
+  stats:
+  - stat: 1
+    weight: 1
+    valueScale: 1
+    canBeMain: 1
+    canBeExtra: 1
+  - stat: 2
+    weight: 0.9
+    valueScale: 3
+    canBeMain: 1
+    canBeExtra: 1
+  - stat: 3
+    weight: 0.8
+    valueScale: 4
+    canBeMain: 1
+    canBeExtra: 1
+  - stat: 4
+    weight: 0.7
+    valueScale: 0.75
+    canBeMain: 1
+    canBeExtra: 1
+  - stat: 5
+    weight: 0.5
+    valueScale: 0.5
+    canBeMain: 1
+    canBeExtra: 1
+  - stat: 6
+    weight: 0.45
+    valueScale: 0.3
+    canBeMain: 1
+    canBeExtra: 1

@@ -23,3 +23,11 @@ MonoBehaviour:
     stanChance: 0
   isEngine: 1
   icon: {fileID: 0}
+  recycleRecipe:
+  - type: 0
+    minAmount: 2
+    maxAmount: 4
+  - type: 1
+    minAmount: 1
+    maxAmount: 2
+  recyclePerLevel: 0.3

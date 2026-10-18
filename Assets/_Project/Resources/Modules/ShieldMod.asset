@@ -22,3 +22,11 @@ MonoBehaviour:
     regen: 0
     stanChance: 0
   icon: {fileID: 0}
+  recycleRecipe:
+  - type: 0
+    minAmount: 1
+    maxAmount: 2
+  - type: 2
+    minAmount: 1
+    maxAmount: 1
+  recyclePerLevel: 0.35

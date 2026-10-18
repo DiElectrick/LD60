@@ -1,0 +1,245 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+/// <summary>
+/// One row of the level table: everything that scales with the level of a generated
+/// module. Ranges are INCLUSIVE, so {x: 2, y: 4} rolls 2, 3 or 4.
+/// </summary>
+[Serializable]
+public class LevelTuning
+{
+    [Tooltip("The item level this row describes (1..maxLevel).")]
+    public int level = 1;
+
+    [Tooltip("Range of the main affix at this level, before the stat's value scale.")]
+    public Vector2Int mainRange = new(2, 4);
+
+    [Tooltip("Chance (0..1) that this item also rolls extra affixes.")]
+    [Range(0f, 1f)]
+    public float extraChance = 0.15f;
+
+    [Tooltip("How many extra affixes are rolled when the chance succeeds.")]
+    public Vector2Int extraCount = new(1, 1);
+
+    [Tooltip("Range of every extra affix at this level, before the stat's value scale.")]
+    public Vector2Int extraValue = new(1, 2);
+
+    [Tooltip("Relative chance for this level to be rolled. 0 = never.")]
+    [Min(0f)]
+    public float weight = 1f;
+
+    public int RollMainValue() => UnityEngine.Random.Range(Smaller(mainRange), Bigger(mainRange) + 1);
+
+    public int RollExtraValue() => UnityEngine.Random.Range(Smaller(extraValue), Bigger(extraValue) + 1);
+
+    public int RollExtraCount() => UnityEngine.Random.Range(Smaller(extraCount), Bigger(extraCount) + 1);
+
+    static int Smaller(Vector2Int range) => Mathf.Min(range.x, range.y);
+
+    static int Bigger(Vector2Int range) => Mathf.Max(range.x, range.y);
+}
+
+/// <summary>
+/// How one stat behaves in the generator: how often it is picked and how big its
+/// numbers are compared to the rolled range (a % stat like regen needs a different
+/// scale than a big pool like health).
+/// </summary>
+[Serializable]
+public class StatRule
+{
+    [Tooltip("The stat this rule describes.")]
+    public StatType stat = StatType.Atack;
+
+    [Tooltip("Relative chance to be picked as the main stat or as an extra affix.")]
+    [Min(0f)]
+    public float weight = 1f;
+
+    [Tooltip("Multiplies the rolled value. 1 = raw range, 0.5 = half, 3 = triple. Never rolls below 1.")]
+    [Min(0f)]
+    public float valueScale = 1f;
+
+    [Tooltip("Can this stat be the main stat of an item?")]
+    public bool canBeMain = true;
+
+    [Tooltip("Can this stat drop as an extra affix?")]
+    public bool canBeExtra = true;
+}
+
+/// <summary>
+/// Every knob of the procedural module generator: the level table (main buff range,
+/// extra-buff chance and ranges per level) and the per-stat rules.
+/// Create one with Assets > Create > LD60 > Module Generation Config and assign it to
+/// the ModuleGenerator (or drop it in a Resources folder so it is found automatically).
+/// </summary>
+[CreateAssetMenu(menuName = "LD60/Module Generation Config", fileName = "ModuleGenerationConfig")]
+public class ModuleGenerationConfig : ScriptableObject
+{
+    public const int DefaultMaxLevel = 10;
+
+    [Header("Levels")]
+    [Tooltip("Lowest level an item can roll.")]
+    [Min(1)]
+    [SerializeField] int minLevel = 1;
+
+    [Tooltip("Highest level an item can roll.")]
+    [Min(1)]
+    [SerializeField] int maxLevel = DefaultMaxLevel;
+
+    [Tooltip("One row per level. An item rolls its main buff and extra buffs from the row of its level.")]
+    [SerializeField] List<LevelTuning> levels = new();
+
+    [Header("Stats")]
+    [Tooltip("Which stats can be rolled, how often and how big.")]
+    [SerializeField] List<StatRule> stats = new();
+
+    public int MinLevel => Mathf.Max(1, minLevel);
+    public int MaxLevel => Mathf.Max(MinLevel, maxLevel);
+
+    public IReadOnlyList<LevelTuning> Levels => levels;
+    public IReadOnlyList<StatRule> Stats => stats;
+
+    /// <summary>Row of the level table closest to <paramref name="level"/> (never null).</summary>
+    public LevelTuning GetTuning(int level)
+    {
+        if (levels.Count == 0) return Defaults.Tuning(level);
+
+        LevelTuning best = null;
+        int bestDistance = int.MaxValue;
+
+        foreach (var tuning in levels)
+        {
+            if (tuning == null) continue;
+
+            int distance = Mathf.Abs(tuning.level - level);
+
+            // Closest row wins; on a tie the lower level wins, so an unlisted level
+            // never rolls a stronger item than the table says.
+            if (best == null || distance < bestDistance ||
+                (distance == bestDistance && tuning.level < best.level))
+            {
+                best = tuning;
+                bestDistance = distance;
+            }
+        }
+
+        return best ?? Defaults.Tuning(level);
+    }
+
+    /// <summary>Rule of one stat; a neutral fallback rule when it is missing from the table.</summary>
+    public StatRule GetRule(StatType stat)
+    {
+        foreach (var rule in stats)
+        {
+            if (rule != null && rule.stat == stat) return rule;
+        }
+
+        return Defaults.Rule(stat);
+    }
+
+    public bool TryGetRule(StatType stat, out StatRule rule)
+    {
+        foreach (var existing in stats)
+        {
+            if (existing != null && existing.stat == stat)
+            {
+                rule = existing;
+                return true;
+            }
+        }
+
+        rule = null;
+        return false;
+    }
+
+    /// <summary>Fills the level table (10 rows by default) and the stat rules with sane values.</summary>
+    [ContextMenu("Fill default level table")]
+    public void ResetToDefaults()
+    {
+        minLevel = 1;
+        maxLevel = DefaultMaxLevel;
+
+        levels.Clear();
+        for (int level = minLevel; level <= maxLevel; level++)
+        {
+            levels.Add(Defaults.Tuning(level));
+        }
+
+        stats.Clear();
+        stats.AddRange(Defaults.Rules());
+
+        LogDefaults();
+    }
+
+    /// <summary>Unity calls this when the asset is created through the Create menu.</summary>
+    void Reset()
+    {
+        ResetToDefaults();
+    }
+
+    void OnValidate()
+    {
+        maxLevel = Mathf.Max(minLevel, maxLevel);
+
+        var seen = new HashSet<StatType>();
+        foreach (var rule in stats)
+        {
+            if (rule == null) continue;
+            if (rule.stat == StatType.None) continue;
+            if (!seen.Add(rule.stat))
+            {
+                Debug.LogWarning($"[Generator] '{name}' has more than one rule for {rule.stat} - the first one wins.", this);
+            }
+        }
+    }
+
+    void LogDefaults()
+    {
+        Debug.Log($"[Generator] '{name}' filled with {levels.Count} level rows and {stats.Count} stat rules");
+    }
+
+    /// <summary>Built-in values used by a fresh config and as a fallback for missing rows.</summary>
+    public static class Defaults
+    {
+        /// <summary>The shipped balance curve: main buff grows with the level, extras get more likely.</summary>
+        public static LevelTuning Tuning(int level)
+        {
+            int clamped = Mathf.Clamp(level, 1, DefaultMaxLevel);
+
+            // Main affix: +2..4 at level 1, +12..18 at level 10.
+            int mainMin = Mathf.RoundToInt(2f + (clamped - 1) * 10f / 9f);
+            int mainMax = Mathf.RoundToInt(4f + (clamped - 1) * 14f / 9f);
+
+            return new LevelTuning
+            {
+                level = clamped,
+                mainRange = new Vector2Int(mainMin, mainMax),
+                extraChance = Mathf.Lerp(0.1f, 0.9f, (clamped - 1) / (float)(DefaultMaxLevel - 1)),
+                extraCount = clamped <= 2 ? new Vector2Int(1, 1) : new Vector2Int(1, 3),
+                extraValue = clamped <= 2 ? new Vector2Int(1, 2) : new Vector2Int(2, 7),
+                weight = Mathf.Lerp(30f, 2f, (clamped - 1) / (float)(DefaultMaxLevel - 1)),
+            };
+        }
+
+        public static StatRule Rule(StatType stat)
+        {
+            switch (stat)
+            {
+                case StatType.Atack: return new StatRule { stat = stat, weight = 1f, valueScale = 1f, canBeMain = true, canBeExtra = true };
+                case StatType.Speed: return new StatRule { stat = stat, weight = 0.9f, valueScale = 0.5f, canBeMain = true, canBeExtra = true };
+                case StatType.Health: return new StatRule { stat = stat, weight = 0.8f, valueScale = 3f, canBeMain = true, canBeExtra = true };
+                case StatType.Def: return new StatRule { stat = stat, weight = 0.7f, valueScale = 0.5f, canBeMain = true, canBeExtra = true };
+                case StatType.Regen: return new StatRule { stat = stat, weight = 0.5f, valueScale = 0.2f, canBeMain = true, canBeExtra = true };
+                case StatType.StanChance: return new StatRule { stat = stat, weight = 0.45f, valueScale = 0.3f, canBeMain = true, canBeExtra = true };
+                default: return new StatRule { stat = stat, weight = 0f, valueScale = 1f, canBeMain = false, canBeExtra = false };
+            }
+        }
+
+        public static List<StatRule> Rules()
+        {
+            var rules = new List<StatRule>();
+            foreach (var stat in StatTypes.All) rules.Add(Rule(stat));
+            return rules;
+        }
+    }
+}
