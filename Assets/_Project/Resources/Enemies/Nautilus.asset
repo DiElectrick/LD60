@@ -18,7 +18,7 @@ MonoBehaviour:
     speed: 40
     health: 150
     def: 7
-    atack: 20
+    atack: 15
     regen: 0
     stanChance: 0
   drops:

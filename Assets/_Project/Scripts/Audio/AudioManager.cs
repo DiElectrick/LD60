@@ -68,6 +68,10 @@ public class AudioManager : MonoBehaviour, IBootstraped
     [Tooltip("Loop that plays while the city is driving. Leave the clip empty until the sound exists.")]
     [SerializeField] SoundCue engine = new() { id = "engine" };
 
+    [Tooltip("One-shot played the moment the city pulls away from a standstill (the station closes " +
+             "and the world starts to roll again). Leave the clip empty until the sound exists.")]
+    [SerializeField] SoundCue engineStart = new() { id = "engineStart" };
+
     [Tooltip("Start / stop the engine loop automatically together with the world speed.")]
     [SerializeField] bool engineFollowsWorld = true;
 
@@ -314,6 +318,22 @@ public class AudioManager : MonoBehaviour, IBootstraped
 
         StartEngineClip(clip, engine.volume);
         engineId = engine.id;
+    }
+
+    /// <summary>
+    /// The "engine cranks up" one-shot: played when the city pulls away from a station, right
+    /// before the world starts to roll (<see cref="BattleCycle"/>). Returns false while the cue
+    /// has no clip assigned.
+    /// </summary>
+    public bool PlayEngineStart()
+    {
+        var cue = engineStart;
+        if (cue == null || cue.clip == null) return false;
+
+        bool played = PlaySfxClip(cue.clip, cue.volume, cue.pitchSpread, cue.bypassInterval);
+        if (played) Debug.Log("[Audio] Engine start");
+
+        return played;
     }
 
     /// <summary>Starts a looping engine clip (or switches to another one).</summary>

@@ -45,6 +45,11 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     [Range(0f, 10f)]
     [SerializeField] float driveBeforeBattle = 3.5f;
 
+    [Tooltip("Beat after the station closes before the city pulls away: the panels slide off " +
+             "screen first, then the engine spins up and the world starts to roll.")]
+    [Range(0f, 2f)]
+    [SerializeField] float departDelay = 0.5f;
+
     [Header("Stop building")]
     [Tooltip("Building the city stops in front of when the stop offers a shop. " +
              "Empty = Resources/" + StopBuildingFolder + "/ShopBuilding.")]
@@ -312,7 +317,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         StartEncounter(route.bossEncounter);
     }
 
-    /// <summary>Run over: everything stops, no station opens and nothing else is spawned.</summary>
+    /// <summary>Run over: no station opens and nothing else is spawned, but the city keeps driving.</summary>
     void EndRun()
     {
         isRunOver = true;
@@ -323,7 +328,10 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         turnManager?.StopBattle();
         spawner?.DespawnAll();
         ClearVictorySequence();
-        parallax?.BrakeToStop(stopDuration);
+
+        // The boss was the last stop of the road, so the run ends on the move: the city rolls on
+        // into the sunset while the end screen comes in over it. No brake, no parking.
+        parallax?.ResumeScrolling();
 
         Debug.Log("[Battle] Run complete - every stop cleared and the boss defeated");
 
@@ -852,15 +860,20 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         // Closing the station first, so the shop slides away with the module panel.
         station?.CloseAll();
 
-        // The city rolls out of the station: the enemy only shows up after a few seconds of
-        // driving, so the fight starts on the open road instead of in the parking lot.
-        parallax?.ResumeScrolling(travel != null ? travel.RampDuration : 0.4f);
-
         StartCoroutine(DriveThenFight());
     }
 
     System.Collections.IEnumerator DriveThenFight()
     {
+        // The station needs a beat to slide off the screen: the city only pulls away after it.
+        if (departDelay > 0f) yield return new WaitForSeconds(departDelay);
+
+        // The engine cranks up and the city rolls out of the station: the enemy only shows up
+        // after a few seconds of driving, so the fight starts on the open road instead of in
+        // the parking lot.
+        G.Get<AudioManager>()?.PlayEngineStart();
+        parallax?.ResumeScrolling(travel != null ? travel.RampDuration : 0.4f);
+
         if (driveBeforeBattle > 0f)
         {
             Debug.Log($"[Battle] Rolling out - the enemy shows up in {driveBeforeBattle:F1}s");

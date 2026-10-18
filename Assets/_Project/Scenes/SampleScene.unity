@@ -1284,10 +1284,10 @@ RectTransform:
   - {fileID: 522523712}
   m_Father: {fileID: 501059209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 26.585, y: -77.5}
+  m_SizeDelta: {x: 40, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &260345751
 MonoBehaviour:
@@ -1474,9 +1474,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74bfcf481d493b940bee5510d7d44f99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RepairButtonUI
-  amount: 30
+  amount: 15
   cost: 0
   resource: 0
+  showAmountInTitle: 1
   button: {fileID: 272525604}
   title: {fileID: 431521582}
   price: {fileID: 1953033242}
@@ -1859,6 +1860,12 @@ MonoBehaviour:
     volume: 1
     pitchSpread: 0
     bypassInterval: 0
+  engineStart:
+    id: engineStart
+    clip: {fileID: 8300000, guid: b7866fbb9b757ce419deb429fa4ee4e8, type: 3}
+    volume: 0.85
+    pitchSpread: 0
+    bypassInterval: 1
   engineFollowsWorld: 1
   engineStopSpeed: 0.05
   engineFade: 0.35
@@ -7090,7 +7097,8 @@ MonoBehaviour:
   startingNode: {fileID: 11400000, guid: f3d130d279a42c842beb654e7952c845, type: 2}
   arrivalDriveDuration: 2.2
   stopDuration: 1.8
-  driveBeforeBattle: 3.5
+  driveBeforeBattle: 5
+  departDelay: 0.5
   shopBuilding: {fileID: 2316136407800000004, guid: 42dc2d1c2148490194fc13839f9c54f5, type: 3}
   repairBuilding: {fileID: 2316136407800000014, guid: 12bd4445c45d4128abead997a2880fba, type: 3}
   stopBuildingGap: 0.7
@@ -9739,10 +9747,10 @@ RectTransform:
   - {fileID: 38996753}
   m_Father: {fileID: 501059209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 71.585, y: -77.5}
+  m_SizeDelta: {x: 40, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1125743844
 MonoBehaviour:
@@ -9833,10 +9841,10 @@ RectTransform:
   - {fileID: 1444716681}
   m_Father: {fileID: 501059209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 26.585, y: -47.5}
+  m_SizeDelta: {x: 40, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1133726364
 MonoBehaviour:
@@ -10458,10 +10466,10 @@ RectTransform:
   - {fileID: 1284324049}
   m_Father: {fileID: 501059209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 71.585, y: -17.5}
+  m_SizeDelta: {x: 40, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1273348200
 MonoBehaviour:
@@ -11280,10 +11288,10 @@ RectTransform:
   - {fileID: 1529627876}
   m_Father: {fileID: 501059209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 71.585, y: -47.5}
+  m_SizeDelta: {x: 40, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1397288676
 MonoBehaviour:
@@ -12339,10 +12347,10 @@ RectTransform:
   - {fileID: 2076072851}
   m_Father: {fileID: 501059209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 26.585, y: -17.5}
+  m_SizeDelta: {x: 40, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1614157482
 MonoBehaviour:
@@ -12531,9 +12539,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74bfcf481d493b940bee5510d7d44f99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RepairButtonUI
-  amount: 100
+  amount: 40
   cost: 12
   resource: 0
+  showAmountInTitle: 1
   button: {fileID: 1639285497}
   title: {fileID: 2103347762}
   price: {fileID: 645494923}
@@ -12861,7 +12870,7 @@ MonoBehaviour:
   offerContainer: {fileID: 0}
   rowSpacing: 3.5
   offersOffsetY: -4.5
-  offersOffsetX: -6
+  offersOffsetX: -20
   slotPrefab: {fileID: 1550706196476817229, guid: 1f6f21ded270f614baa9893f0134fcd7, type: 3}
   slotSprite: {fileID: 0}
   slotSize: {x: 40, y: 25}
