@@ -618,6 +618,94 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_22
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 15
+        width: 81
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3aa243e562e0b1b4d95ca15ba66e8f99
+      internalID: 298312922
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_23
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 10
+        width: 68
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ca6eae31bf52628479a69cfc6142359c
+      internalID: 849585674
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_24
+      rect:
+        serializedVersion: 2
+        x: 233
+        y: 180
+        width: 13
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 104db0e9284028b4db97b706bfaef5f8
+      internalID: -1974048739
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_25
+      rect:
+        serializedVersion: 2
+        x: 251
+        y: 72
+        width: 87
+        height: 137
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9b8789f6d3e54c64f95e581721d0a697
+      internalID: 1896938409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -649,6 +737,10 @@ TextureImporter:
       NomadCity_export_2: -7293170466157348186
       NomadCity_export_20: -1392394601
       NomadCity_export_21: -1228916203
+      NomadCity_export_22: 298312922
+      NomadCity_export_23: 849585674
+      NomadCity_export_24: -1974048739
+      NomadCity_export_25: 1896938409
       NomadCity_export_3: -7644529716688296759
       NomadCity_export_4: -723376294
       NomadCity_export_5: 582246035
