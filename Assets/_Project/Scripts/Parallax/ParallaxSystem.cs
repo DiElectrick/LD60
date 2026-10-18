@@ -34,10 +34,46 @@ public class ParallaxSystem : MonoBehaviour
     {
         float deltaTime = Time.deltaTime * speedMultiplier;
 
-        foreach (var layer in layers)
+        // Indexed, because a layer can remove itself while it moves (a spawned building that
+        // scrolled out of the view is destroyed).
+        for (int i = 0; i < layers.Count; i++)
         {
+            var layer = layers[i];
+
+            if (layer == null)
+            {
+                layers.RemoveAt(i);
+                i--;
+                continue;
+            }
+
             layer.Tick(deltaTime);
         }
+    }
+
+    /// <summary>
+    /// Adds a layer that was created after <see cref="Awake"/> (spawned objects are not in the
+    /// initial child scan), so it scrolls with the rest of the world.
+    /// </summary>
+    public void RegisterLayer(ParallaxLayer layer)
+    {
+        if (layer == null || layers.Contains(layer)) return;
+
+        layers.Add(layer);
+    }
+
+    /// <summary>Stops ticking a layer (called when a spawned layer is removed).</summary>
+    public void UnregisterLayer(ParallaxLayer layer)
+    {
+        if (layer == null) return;
+
+        layers.Remove(layer);
+    }
+
+    /// <summary>Speed a layer scrolls at right now (its own speed times the live multiplier).</summary>
+    public float CurrentSpeed(ParallaxLayer layer)
+    {
+        return layer != null ? layer.speed * speedMultiplier : 0f;
     }
 
     /// <summary>Eases the scrolling to a full stop (played when the battle ends).</summary>

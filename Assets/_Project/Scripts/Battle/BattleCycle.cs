@@ -15,6 +15,9 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class BattleCycle : MonoBehaviour, IBootstraped
 {
+    /// <summary>Folder the default shop / repair buildings are loaded from.</summary>
+    public const string StopBuildingFolder = "StopBuildings";
+
     public bool isInitialised { get; set; }
 
     [Tooltip("The player's path. Empty = the first MapRoute in Resources/" + MapRoute.ResourceFolder + ".")]
@@ -28,13 +31,26 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     [SerializeField] MapNode startingNode;
 
     [Header("Victory animation")]
-    [Tooltip("How long the city keeps rolling at full speed after the last enemy dies, " +
-             "before the brake starts. Gives the victory a moment to breathe.")]
-    [Range(0f, 5f)]
-    [SerializeField] float victoryCoastDuration = 3f;
+    [Tooltip("Minimum time the city keeps rolling at full speed after the last enemy dies, before " +
+             "the brake starts. The building of the stop scrolls in during this time; when it needs " +
+             "longer to reach the city, the coast stretches so it never pops in on screen.")]
+    [Range(0f, 8f)]
+    [SerializeField] float victoryCoastDuration = 4.5f;
 
     [Tooltip("How long the parallax takes to come to a full stop.")]
     [SerializeField] float stopDuration = 1.8f;
+
+    [Header("Stop building")]
+    [Tooltip("Building the city stops in front of when the stop offers a shop. " +
+             "Empty = Resources/" + StopBuildingFolder + "/ShopBuilding.")]
+    [SerializeField] StopBuilding shopBuilding;
+
+    [Tooltip("Building the city stops in front of when the stop offers a repair bay. " +
+             "Empty = Resources/" + StopBuildingFolder + "/RepairBuilding.")]
+    [SerializeField] StopBuilding repairBuilding;
+
+    [Tooltip("Free space kept between the city and the building it stops in front of.")]
+    [SerializeField] float stopBuildingGap = 0.7f;
 
     [SerializeField] float moduleShakeAmplitude = 0.06f;
     [SerializeField] float platformShakeAmplitude = 0.08f;
@@ -55,6 +71,10 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     EncounterData currentEncounter;
     bool isBattleRunning;
     Tween spawnDelay;
+
+    // Building the city stops in front of at the current stop (null while fighting / travelling).
+    StopBuilding currentBuilding;
+    GroundParallaxLayer groundLayer;
 
     // Victory sequence: coast (world keeps rolling) -> brake + shake -> station / end screen.
     Tween coastDelay;
@@ -377,13 +397,153 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         // its speedMultiplier is exactly what "the city is moving" means.
         float coast = Mathf.Max(0f, victoryCoastDuration);
 
-        Debug.Log($"[Battle] Victory - coasting for {coast:F2}s before the stop animation");
+        // The building of the stop scrolls in with the ground and the brake is timed so the
+        // city comes to a halt right in front of it.
+        var building = SpawnStopBuilding();
+        if (building != null) coast = PlaceStopBuilding(building, coast);
+
+        Debug.Log(building != null
+            ? $"[Battle] Victory - coasting for {coast:F2}s while '{building.name}' rolls in"
+            : $"[Battle] Victory - coasting for {coast:F2}s before the stop animation");
 
         if (coast <= 0f) PlayStopAnimation();
         else coastDelay = DOVirtual.DelayedCall(coast, PlayStopAnimation);
 
         // The station (or the end screen after the boss) slides in once everything is still.
         panelDelay = DOVirtual.DelayedCall(coast + stopDuration, AfterVictory);
+    }
+
+    // ------------------------------------------------------------------ stop building
+
+    /// <summary>
+    /// Shop / repair building of the stop the city is standing at: null for a node without one
+    /// (and for the boss, which has no station at all).
+    /// </summary>
+    StopBuilding StopBuildingPrefab()
+    {
+        var node = CurrentNode;
+        if (node == null) return null;
+
+        if (node.stationPanels.Contains("repair"))
+            return repairBuilding != null ? repairBuilding : LoadStopBuilding("RepairBuilding");
+
+        if (node.stationPanels.Contains("shop"))
+            return shopBuilding != null ? shopBuilding : LoadStopBuilding("ShopBuilding");
+
+        return null;
+    }
+
+    static StopBuilding LoadStopBuilding(string fileName)
+    {
+        return Resources.Load<StopBuilding>($"{StopBuildingFolder}/{fileName}");
+    }
+
+    /// <summary>Spawns the stop's building off the right edge of the road, ready to roll in.</summary>
+    StopBuilding SpawnStopBuilding()
+    {
+        var prefab = StopBuildingPrefab();
+        if (prefab == null) return null;
+
+        var building = Instantiate(prefab);
+        building.name = prefab.name;
+
+        // It has to travel exactly like the road, or it would slide out from under the city.
+        var ground = GroundLayer();
+        if (ground != null) building.speed = ground.speed;
+
+        currentBuilding = building;
+        return building;
+    }
+
+    /// <summary>
+    /// Places the building so that it reaches the city exactly when the world stops, and returns
+    /// the coast time the victory sequence must use (never shorter than
+    /// <see cref="victoryCoastDuration"/>, never short enough to appear on screen).
+    /// </summary>
+    float PlaceStopBuilding(StopBuilding building, float minimumCoast)
+    {
+        float speed = Mathf.Max(0.01f, WorldSpeed);
+        float brakeDistance = BrakeDistance;
+
+        // Where the building must end: right in front of the city, its left edge one gap away.
+        float stopX = CityRightEdge() + stopBuildingGap + building.HalfWidth;
+
+        // It must be spawned outside the view, so give the coast at least the time it needs to
+        // come in from the right edge.
+        float entry = (building.ViewRightEdge + building.HalfWidth - stopX - brakeDistance) / speed;
+        float coast = Mathf.Max(Mathf.Max(0f, minimumCoast), entry);
+
+        // Coast at full speed for `coast`, then slide the last bit while braking: that is how far
+        // to the right the building has to start.
+        var start = building.transform.position;
+        building.transform.position =
+            new Vector3(stopX + coast * speed + brakeDistance, start.y, start.z);
+
+        return coast;
+    }
+
+    /// <summary>Effective road speed right now (ground layer speed × the live parallax multiplier).</summary>
+    float WorldSpeed
+    {
+        get
+        {
+            var ground = GroundLayer();
+            float layerSpeed = ground != null ? ground.speed : 1f;
+            float multiplier = parallax != null ? parallax.speedMultiplier : 1f;
+
+            return layerSpeed * multiplier;
+        }
+    }
+
+    /// <summary>
+    /// Distance the world still slides while <see cref="ParallaxSystem.BrakeToStop"/> runs: the
+    /// brake eases out (OutQuad), so it travels a third of the stopping time at full speed.
+    /// </summary>
+    float BrakeDistance => WorldSpeed * Mathf.Max(0f, stopDuration) / 3f;
+
+    GroundParallaxLayer GroundLayer()
+    {
+        if (groundLayer != null || parallax == null) return groundLayer;
+
+        foreach (var layer in parallax.Layers)
+        {
+            if (layer is GroundParallaxLayer ground)
+            {
+                groundLayer = ground;
+                break;
+            }
+        }
+
+        return groundLayer;
+    }
+
+    /// <summary>Right edge of the city: the part of the caravan the building stops in front of.</summary>
+    float CityRightEdge()
+    {
+        if (city == null) return 0f;
+
+        float right = city.transform.position.x;
+
+        foreach (var platform in city.Platforms)
+        {
+            if (platform == null) continue;
+
+            var art = platform.GetComponent<Renderer>();
+            right = art != null
+                ? Mathf.Max(right, art.bounds.max.x)
+                : Mathf.Max(right, platform.transform.position.x);
+        }
+
+        return right;
+    }
+
+    /// <summary>Removes the building of the previous stop (the city rolled on).</summary>
+    void ClearStopBuilding()
+    {
+        if (currentBuilding == null) return;
+
+        Destroy(currentBuilding.gameObject);
+        currentBuilding = null;
     }
 
     /// <summary>Brake the world and make the city shiver while it comes to a halt.</summary>
@@ -405,6 +565,9 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
         panelDelay?.Kill();
         panelDelay = null;
+
+        // The next stop gets its own building; this one is left behind.
+        ClearStopBuilding();
     }
 
     void ShakeCity()

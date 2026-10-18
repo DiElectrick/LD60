@@ -92,7 +92,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RailgunModule
   barrel: {fileID: 6544133722791104892}
   aimSpeed: 540
-  recoilAngle: 7
+  recoilAngle: 0
   recoilKickTime: 0.05
   recoilReturnTime: 0.18
   beamSprite: {fileID: -2119041427, guid: 73e4de54c1f912e47a305cdcee1f4ee0, type: 3}
