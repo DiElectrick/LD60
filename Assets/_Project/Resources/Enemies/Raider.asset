@@ -25,6 +25,3 @@ MonoBehaviour:
   - type: 0
     minAmount: 2
     maxAmount: 5
-  - type: 1
-    minAmount: 0
-    maxAmount: 2

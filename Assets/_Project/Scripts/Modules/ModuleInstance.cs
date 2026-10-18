@@ -47,7 +47,7 @@ public class ModuleInstance
     public StatsBonus Bonus => bonus;
     public IReadOnlyList<StatRoll> Rolls => rolls;
 
-    /// <summary>Name shown in the UI / hierarchy, e.g. "Gun Lv.7".</summary>
+    /// <summary>Name shown in the UI / hierarchy, e.g. "Gun Lv.2".</summary>
     public string DisplayName => data != null ? $"{data.displayName} Lv.{level}" : $"Module Lv.{level}";
 
     public Sprite Icon => data != null ? data.Icon : null;
@@ -67,7 +67,7 @@ public class ModuleInstance
         bonus.Add(stat, value);
     }
 
-    /// <summary>"Gun Lv.7 (main ATK +9, extra SPD +2)" - used by the generator log.</summary>
+    /// <summary>"Gun Lv.2 (main ATK +6, extra SPD +1)" - used by the generator log.</summary>
     public override string ToString()
     {
         var text = new StringBuilder(DisplayName);

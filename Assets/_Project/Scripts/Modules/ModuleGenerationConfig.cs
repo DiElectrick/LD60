@@ -75,7 +75,7 @@ public class StatRule
 [CreateAssetMenu(menuName = "LD60/Module Generation Config", fileName = "ModuleGenerationConfig")]
 public class ModuleGenerationConfig : ScriptableObject
 {
-    public const int DefaultMaxLevel = 10;
+    public const int DefaultMaxLevel = 3;
 
     [Header("Levels")]
     [Tooltip("Lowest level an item can roll.")]
@@ -152,7 +152,7 @@ public class ModuleGenerationConfig : ScriptableObject
         return false;
     }
 
-    /// <summary>Fills the level table (10 rows by default) and the stat rules with sane values.</summary>
+    /// <summary>Fills the level table (one row per level) and the stat rules with sane values.</summary>
     [ContextMenu("Fill default level table")]
     public void ResetToDefaults()
     {
@@ -205,19 +205,20 @@ public class ModuleGenerationConfig : ScriptableObject
         public static LevelTuning Tuning(int level)
         {
             int clamped = Mathf.Clamp(level, 1, DefaultMaxLevel);
+            float progress = DefaultMaxLevel > 1 ? (clamped - 1) / (float)(DefaultMaxLevel - 1) : 0f;
 
-            // Main affix: +2..4 at level 1, +12..18 at level 10.
-            int mainMin = Mathf.RoundToInt(2f + (clamped - 1) * 10f / 9f);
-            int mainMax = Mathf.RoundToInt(4f + (clamped - 1) * 14f / 9f);
+            // Main affix: +2..4 at level 1, +4..6 at level 3.
+            int mainMin = 2 + (clamped - 1);
+            int mainMax = 4 + (clamped - 1);
 
             return new LevelTuning
             {
                 level = clamped,
                 mainRange = new Vector2Int(mainMin, mainMax),
-                extraChance = Mathf.Lerp(0.1f, 0.9f, (clamped - 1) / (float)(DefaultMaxLevel - 1)),
-                extraCount = clamped <= 2 ? new Vector2Int(1, 1) : new Vector2Int(1, 3),
-                extraValue = clamped <= 2 ? new Vector2Int(1, 2) : new Vector2Int(2, 7),
-                weight = Mathf.Lerp(30f, 2f, (clamped - 1) / (float)(DefaultMaxLevel - 1)),
+                extraChance = Mathf.Lerp(0.1f, 0.3f, progress),
+                extraCount = clamped <= 2 ? new Vector2Int(1, 1) : new Vector2Int(1, 2),
+                extraValue = clamped <= 2 ? new Vector2Int(1, 2) : new Vector2Int(1, 3),
+                weight = Mathf.Lerp(30f, 20f, progress),
             };
         }
 
@@ -231,6 +232,9 @@ public class ModuleGenerationConfig : ScriptableObject
                 case StatType.Def: return new StatRule { stat = stat, weight = 0.7f, valueScale = 0.5f, canBeMain = true, canBeExtra = true };
                 case StatType.Regen: return new StatRule { stat = stat, weight = 0.5f, valueScale = 0.2f, canBeMain = true, canBeExtra = true };
                 case StatType.StanChance: return new StatRule { stat = stat, weight = 0.45f, valueScale = 0.3f, canBeMain = true, canBeExtra = true };
+                // Scrap is income, not a battle number: half the rolled range keeps a
+                // harvester from out-earning the loot of a whole encounter.
+                case StatType.Harvest: return new StatRule { stat = stat, weight = 0.35f, valueScale = 0.5f, canBeMain = true, canBeExtra = true };
                 default: return new StatRule { stat = stat, weight = 0f, valueScale = 1f, canBeMain = false, canBeExtra = false };
             }
         }

@@ -17,4 +17,4 @@ MonoBehaviour:
   stationPanels:
   - module
   - repair
-  stationLevel: 5
+  stationLevel: 2

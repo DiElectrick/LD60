@@ -229,7 +229,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
         enemyStats.health -= applied;
         Debug.Log($"{name} took {damage} damage, hp left: {enemyStats.health}");
 
-        G.Get<DamagePopupSpawner>()?.ShowEnemyDamage(applied, transform.position);
+        G.Get<PopupSpawner>()?.ShowEnemyDamage(applied, transform.position);
         G.Get<AudioManager>()?.PlaySfx("enemyDamage");
 
         UpdateHealthUI();

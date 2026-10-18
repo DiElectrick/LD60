@@ -6,7 +6,7 @@ using UnityEngine;
 /// Turns a generated module into resources.
 /// Every archetype defines its own recipe (<see cref="ModuleData.recycleRecipe"/>) and how
 /// fast the yield grows with the item level (<see cref="ModuleData.recyclePerLevel"/>), so a
-/// level 10 gun is worth much more scrap than a level 1 one.
+/// level 3 gun is worth more scrap than a level 1 one.
 /// </summary>
 public static class ModuleRecycling
 {
@@ -49,7 +49,7 @@ public static class ModuleRecycling
         return result;
     }
 
-    /// <summary>"3 ScrapMetal, 1 Oil" - used by the recycling log.</summary>
+    /// <summary>"3 ScrapMetal" - used by the recycling log.</summary>
     public static string Describe(IReadOnlyList<ResourceDrop> drops)
     {
         if (drops == null || drops.Count == 0) return "nothing";

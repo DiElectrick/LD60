@@ -159,8 +159,6 @@ public class RepairPanelUI : SlidingStationPanel
         switch (type)
         {
             case ResourceType.ScrapMetal: return "SCRAP";
-            case ResourceType.Oil: return "OIL";
-            case ResourceType.EnergyCore: return "CORE";
             default: return type.ToString();
         }
     }

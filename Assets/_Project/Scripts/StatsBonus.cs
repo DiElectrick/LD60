@@ -3,6 +3,11 @@ using System;
 /// <summary>
 /// Additive stat deltas provided by a module (or any other buff source).
 /// Sum all bonuses, then add them on top of the base stats.
+/// <para>
+/// <see cref="harvest"/> is the one exception: it is a city economy stat that has no place in
+/// <see cref="Stats"/> (the battle numbers enemies also use), so <see cref="AddTo"/> does not
+/// apply it. <see cref="CityController"/> sums it separately into "scrap per turn".
+/// </para>
 /// </summary>
 [Serializable]
 public class StatsBonus
@@ -14,6 +19,9 @@ public class StatsBonus
     public int regen;
     public int stanChance;
 
+    /// <summary>Scrap metal the city collects at the start of a turn. City only - see the class docs.</summary>
+    public int harvest;
+
     public void AddTo(Stats target)
     {
         target.atack += atack;
@@ -22,6 +30,7 @@ public class StatsBonus
         target.def += def;
         target.regen += regen;
         target.stanChance += stanChance;
+        // harvest is deliberately NOT applied: it is not a battle stat.
     }
 
     /// <summary>Value of one stat, so generators can iterate over <see cref="StatTypes.All"/>.</summary>
@@ -35,6 +44,7 @@ public class StatsBonus
             case StatType.Def: return def;
             case StatType.Regen: return regen;
             case StatType.StanChance: return stanChance;
+            case StatType.Harvest: return harvest;
             default: return 0;
         }
     }
@@ -49,6 +59,7 @@ public class StatsBonus
             case StatType.Def: def = value; break;
             case StatType.Regen: regen = value; break;
             case StatType.StanChance: stanChance = value; break;
+            case StatType.Harvest: harvest = value; break;
         }
     }
 

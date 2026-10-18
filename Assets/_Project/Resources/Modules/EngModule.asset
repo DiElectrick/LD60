@@ -21,13 +21,12 @@ MonoBehaviour:
     def: 1
     regen: 0
     stanChance: 0
+  mainStat: 0
+  extraStatPool: 
   isEngine: 1
   icon: {fileID: 0}
   recycleRecipe:
   - type: 0
     minAmount: 2
     maxAmount: 4
-  - type: 1
-    minAmount: 1
-    maxAmount: 2
   recyclePerLevel: 0.3

@@ -1,7 +1,5 @@
-/// <summary>The three resource types the city collects.</summary>
+/// <summary>The only resource the city collects: scrap metal.</summary>
 public enum ResourceType
 {
     ScrapMetal,
-    Oil,
-    EnergyCore,
 }

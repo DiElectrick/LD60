@@ -47,6 +47,9 @@ public class StatsPanelUI : MonoBehaviour
         Show("SPD", stats.speed);
         Show("REGEN", stats.regen);
         Show("STUN", stats.stanChance);
+
+        // Scrap is a city economy stat, not a battle one - it lives on the city, not in Stats.
+        Show("SCRAP", city.HarvestPerTurn);
     }
 
     void Show(string label, int value)

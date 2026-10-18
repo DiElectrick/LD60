@@ -19,4 +19,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e9c3f90e790f4366ad55afcf99aed98c, type: 2}
   - {fileID: 11400000, guid: 8c5ee2bfefa2431195fae7d23ec7628f, type: 2}
   - {fileID: 11400000, guid: 5bf0973a889149908343e6d5545e22c2, type: 2}
+  - {fileID: 11400000, guid: 51cace4b699fc954faf70c9e6a77867a, type: 2}
+  - {fileID: 11400000, guid: 107c35c6b5034dd40be6093f9714e5b8, type: 2}
   bossEncounter: {fileID: 11400000, guid: 40b59ddd49d1455f8cbcf21d2f7907a1, type: 2}

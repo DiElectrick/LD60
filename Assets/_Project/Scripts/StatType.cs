@@ -12,6 +12,13 @@ public enum StatType
     Def = 4,
     Regen = 5,
     StanChance = 6,
+
+    /// <summary>
+    /// Scrap collected at the start of every city turn (the harvester module).
+    /// Economy stat: it only lives in <see cref="StatsBonus"/>, never in <see cref="Stats"/>,
+    /// so combat code - and therefore every enemy - cannot read or use it.
+    /// </summary>
+    Harvest = 7,
 }
 
 /// <summary>Helpers for iterating and labelling <see cref="StatType"/> values.</summary>
@@ -26,6 +33,7 @@ public static class StatTypes
         StatType.Def,
         StatType.Regen,
         StatType.StanChance,
+        StatType.Harvest,
     };
 
     public static bool IsReal(this StatType stat)
@@ -44,6 +52,7 @@ public static class StatTypes
             case StatType.Def: return "DEF";
             case StatType.Regen: return "REGEN";
             case StatType.StanChance: return "STUN";
+            case StatType.Harvest: return "SCRAP";
             default: return stat.ToString();
         }
     }

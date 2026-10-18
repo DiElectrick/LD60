@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &6801136670444146926
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 338635521161593234, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.498
+      objectReference: {fileID: 0}
+    - target: {fileID: 481682014308649933, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_Name
+      value: RailgunPfb
+      objectReference: {fileID: 0}
+    - target: {fileID: 5060364636716172832, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_Name
+      value: Railgun
+      objectReference: {fileID: 0}
+    - target: {fileID: 5561972728627645626, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1733998596, guid: cf35238f79131814a89d74f21bfd3311, type: 3}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.56253
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.70155
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635675526740504518, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 2165272792806068448, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 481682014308649933, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7979185458720069816}
+  m_SourcePrefab: {fileID: 100100000, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+--- !u!1 &6398835490496912163 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 481682014308649933, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+  m_PrefabInstance: {fileID: 6801136670444146926}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7979185458720069816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6398835490496912163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43c4496ea789e974a81bdce4517ff637, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RailgunModule
+  barrel: {fileID: 6544133722791104892}
+  aimSpeed: 540
+  recoilAngle: 7
+  recoilKickTime: 0.05
+  recoilReturnTime: 0.18
+  beamSprite: {fileID: -2119041427, guid: 73e4de54c1f912e47a305cdcee1f4ee0, type: 3}
+  beamColor: {r: 0.45, g: 0.95, b: 1, a: 1}
+  beamWidth: 0.8
+  beamGrowTime: 0.06
+  beamLife: 0.18
+  muzzleOffset: 1.2
+  beamSortingOrder: 520
+--- !u!4 &6544133722791104892 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 338635521161593234, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+  m_PrefabInstance: {fileID: 6801136670444146926}
+  m_PrefabAsset: {fileID: 0}

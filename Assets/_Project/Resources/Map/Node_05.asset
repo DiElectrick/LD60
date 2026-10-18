@@ -17,4 +17,4 @@ MonoBehaviour:
   stationPanels:
   - module
   - shop
-  stationLevel: 6
+  stationLevel: 3

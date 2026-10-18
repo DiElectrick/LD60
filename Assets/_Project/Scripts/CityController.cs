@@ -21,10 +21,20 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     Stats baseStats = new Stats();
     Stats stats = new Stats();
 
+    /// <summary>
+    /// Scrap the city collects at the start of every turn: the sum of the harvest bonuses of
+    /// all placed modules. Kept apart from <see cref="stats"/> on purpose - it is a city
+    /// economy stat that no enemy can read (see <see cref="StatType.Harvest"/>).
+    /// </summary>
+    int harvestPerTurn;
+
     public IReadOnlyList<Platform> Platforms => platforms;
 
     /// <summary>Current stats: base stats + bonuses from all placed modules.</summary>
     public Stats Stats => stats;
+
+    /// <summary>Scrap metal gained at the start of every city turn (harvester modules).</summary>
+    public int HarvestPerTurn => harvestPerTurn;
 
     /// <summary>Raised after a module was added or removed (stats already recalculated).</summary>
     public event System.Action ModulesChanged;
@@ -138,17 +148,24 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     {
         // Start from the base values, then add every bonus of every placed module.
         stats = baseStats.Clone();
+        harvestPerTurn = 0;
 
         foreach (var platform in platforms)
         {
             foreach (var module in platform.Modules)
             {
-                module.Bonus?.AddTo(stats);
+                var bonus = module.Bonus;
+                if (bonus == null) continue;
+
+                bonus.AddTo(stats);
+
+                // Income is not a battle stat: StatsBonus.AddTo skips it, so it is summed here.
+                harvestPerTurn += bonus.harvest;
             }
         }
 
         Debug.Log($"[City] Stats: atk {stats.atack}, hp {stats.health}, def {stats.def}, spd {stats.speed}, " +
-                  $"regen {stats.regen}%, stun {stats.stanChance}%");
+                  $"regen {stats.regen}%, stun {stats.stanChance}%, scrap +{harvestPerTurn}/turn");
 
         UpdateHealthUI();
     }
@@ -158,6 +175,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
     public void OnTurn()
     {
         Regenerate();
+        Harvest();
 
         // On its turn the city attacks one random living enemy.
         var manager = G.Get<EnemyManager>();
@@ -234,10 +252,84 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         int heal = CombatRules.RegenAmount(stats.health, stats.regen);
         if (heal <= 0) return;
 
+        int before = curentTakeDamage;
         curentTakeDamage = Mathf.Max(0, curentTakeDamage - heal);
+        int restored = before - curentTakeDamage;
+
         UpdateHealthUI();
 
-        Debug.Log($"[Regen] City restored {heal} hp ({curentTakeDamage} damage taken)");
+        if (restored > 0) ShowHealPopups(restored);
+
+        Debug.Log($"[Regen] City restored {restored} hp ({curentTakeDamage} damage taken)");
+    }
+
+    /// <summary>
+    /// Reports the regeneration on the modules that provide it: the "+N" pops out of every
+    /// repair module (auto-repair), split by its share of the total regeneration. A city that
+    /// heals without such a module still reports the heal over itself.
+    /// </summary>
+    void ShowHealPopups(int restored)
+    {
+        var spawner = G.Get<PopupSpawner>();
+        if (spawner == null) return;
+
+        var sources = new List<Module>();
+        int totalRegen = 0;
+
+        foreach (var platform in platforms)
+        {
+            foreach (var module in platform.Modules)
+            {
+                var bonus = module.Bonus;
+                if (bonus == null || bonus.regen <= 0) continue;
+
+                sources.Add(module);
+                totalRegen += bonus.regen;
+            }
+        }
+
+        if (sources.Count == 0)
+        {
+            spawner.ShowCityHeal(restored, transform.position);
+            return;
+        }
+
+        if (sources.Count == 1)
+        {
+            spawner.ShowModuleHeal(restored, sources[0].transform.position);
+            return;
+        }
+
+        // Several repair modules: each one reports its part of the healed amount, and the
+        // last one shows whatever rounding is left so the numbers still add up.
+        int left = restored;
+
+        for (int i = 0; i < sources.Count && left > 0; i++)
+        {
+            int regen = sources[i].Bonus.regen;
+            int share = i == sources.Count - 1
+                ? left
+                : Mathf.Clamp(Mathf.RoundToInt(restored * (float)regen / totalRegen), 0, left);
+
+            if (share > 0) spawner.ShowModuleHeal(share, sources[i].transform.position);
+
+            left -= share;
+        }
+    }
+
+    /// <summary>
+    /// Harvesting: every placed harvester adds its scrap to the bank at the start of the turn.
+    /// The gain pops out of the HUD scrap counter (see <see cref="ResourceCounterUI"/>).
+    /// </summary>
+    void Harvest()
+    {
+        if (harvestPerTurn <= 0) return;
+
+        var resources = G.Get<ResourceManager>();
+        resources?.Add(ResourceType.ScrapMetal, harvestPerTurn);
+
+        Debug.Log($"[Harvest] City collected {harvestPerTurn} {ResourceType.ScrapMetal} " +
+                  $"(total {resources?.Get(ResourceType.ScrapMetal) ?? 0})");
     }
 
     /// <summary>Marks the city as stunned: it will skip its next turn.</summary>
@@ -256,10 +348,16 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
         int before = curentTakeDamage;
         curentTakeDamage = Mathf.Max(0, curentTakeDamage - amount);
+        int restored = before - curentTakeDamage;
 
         UpdateHealthUI();
 
-        Debug.Log($"[Repair] Restored {before - curentTakeDamage} hp ({CurrentHealth}/{stats.health})");
+        if (restored > 0)
+        {
+            G.Get<PopupSpawner>()?.ShowCityHeal(restored, transform.position);
+        }
+
+        Debug.Log($"[Repair] Restored {restored} hp ({CurrentHealth}/{stats.health})");
     }
 
     /// <summary>Reset for a new battle (also drops any stun).</summary>
@@ -305,7 +403,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         int applied = Mathf.Max(damage-stats.def,1);
         curentTakeDamage += applied;
 
-        G.Get<DamagePopupSpawner>()?.ShowCityDamage(applied, transform.position);
+        G.Get<PopupSpawner>()?.ShowCityDamage(applied, transform.position);
         G.Get<AudioManager>()?.PlaySfx("hitHurt");
 
         UpdateHealthUI();

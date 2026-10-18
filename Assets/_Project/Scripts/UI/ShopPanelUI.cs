@@ -50,11 +50,11 @@ public class ShopPanelUI : SlidingStationPanel
 
     [Header("Levels")]
     [Tooltip("Base level of the offered items when the station level is 0.")]
-    [Range(1, 10)]
-    [SerializeField] int baseLevel = 3;
+    [Range(1, 3)]
+    [SerializeField] int baseLevel = 2;
 
-    [Tooltip("Every offer rolls baseLevel ± levelVariance (clamped to 1..10).")]
-    [Range(0, 4)]
+    [Tooltip("Every offer rolls baseLevel ± levelVariance (clamped to the generator's level range).")]
+    [Range(0, 2)]
     [SerializeField] int levelVariance = 1;
 
     [Header("Price")]
@@ -119,7 +119,10 @@ public class ShopPanelUI : SlidingStationPanel
         int variance = Mathf.Max(0, levelVariance);
         int level = openLevel + Random.Range(-variance, variance + 1);
 
-        return Mathf.Clamp(level, 1, 10);
+        var generator = ModuleGenerator.Instance;
+        int max = generator != null ? generator.Config.MaxLevel : 3;
+
+        return Mathf.Clamp(level, 1, Mathf.Max(1, max));
     }
 
     public int Price(ModuleInstance item)

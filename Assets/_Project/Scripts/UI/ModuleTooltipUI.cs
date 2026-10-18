@@ -187,7 +187,7 @@ public class ModuleTooltipUI : MonoBehaviour
     {
         var text = new StringBuilder(96);
 
-        // Title: "Gun Lv.7", a bit larger than the body.
+        // Title: "Gun Lv.2", a bit larger than the body.
         text.Append("<size=+2><b><color=#").Append(ColorUtility.ToHtmlStringRGB(titleColor)).Append(">");
         text.Append(item.DisplayName);
         text.Append("</color></b></size>");
