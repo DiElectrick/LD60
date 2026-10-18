@@ -225,6 +225,8 @@ public class ModuleDragController : MonoBehaviour
         var module = city.AddModule(item, platform);
         if (module == null) return;
 
+        G.Get<AudioManager>()?.PlaySfx("set");
+
         slot?.ConsumeModule();
     }
 

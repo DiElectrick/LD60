@@ -56,6 +56,8 @@ public class ModulePanelUI : StationPanel
 
     void HandleNext()
     {
+        G.Get<AudioManager>()?.PlaySfx("blipSelect");
+
         Hide();
         OnNext?.Invoke();
     }

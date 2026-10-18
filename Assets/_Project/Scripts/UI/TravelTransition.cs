@@ -353,6 +353,8 @@ public class TravelTransition : MonoBehaviour
 
     void HandleRestart()
     {
+        G.Get<AudioManager>()?.PlaySfx("blipSelect");
+
         var action = restartAction;
         restartAction = null;
 

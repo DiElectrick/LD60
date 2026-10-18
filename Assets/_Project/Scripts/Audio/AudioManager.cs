@@ -1,5 +1,5 @@
+using System.Collections;
 using System.Collections.Generic;
-using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
@@ -26,10 +26,15 @@ public class AudioManager : MonoBehaviour, IBootstraped
     [SerializeField] float masterVolume = 1f;
 
     [Range(0f, 1f)]
-    [SerializeField] float musicVolume = 1f;
+    [SerializeField] float musicVolume = 0.5f;
 
     [Range(0f, 1f)]
-    [SerializeField] float sfxVolume = 1f;
+    [SerializeField] float sfxVolume = 0.5f;
+
+    [Tooltip("Extra gain applied to the music on top of its channel volume, so the soundtrack " +
+             "sits below the sound effects (music * game * mix).")]
+    [Range(0f, 1f)]
+    [SerializeField] float musicGain = 0.7f;
 
     [Range(0f, 1f)]
     [SerializeField] float engineVolume = 1f;
@@ -37,6 +42,9 @@ public class AudioManager : MonoBehaviour, IBootstraped
     [Header("Music")]
     [Tooltip("Tracks that can be played by id.")]
     [SerializeField] List<SoundCue> music = new();
+
+    [Tooltip("Track played when the game starts (id from the music list). Empty = silence.")]
+    [SerializeField] string startMusicId = "driftWestland";
 
     [Tooltip("Default cross-fade when music starts or stops.")]
     [SerializeField] float musicFade = 0.6f;
@@ -82,6 +90,9 @@ public class AudioManager : MonoBehaviour, IBootstraped
 
     float currentMusicScale = 1f;
     float currentEngineScale = 1f;
+
+    Coroutine musicFadeRoutine;
+    Coroutine engineFadeRoutine;
 
     ParallaxSystem parallax;
 
@@ -153,12 +164,13 @@ public class AudioManager : MonoBehaviour, IBootstraped
         parallax = FindAnyObjectByType<ParallaxSystem>();
         WarnAboutDuplicates(music, "music");
         WarnAboutDuplicates(sfx, "sfx");
+
+        if (!string.IsNullOrEmpty(startMusicId)) PlayMusic(startMusicId);
     }
 
     void OnDestroy()
     {
-        if (musicSource != null) musicSource.DOKill();
-        if (engineSource != null) engineSource.DOKill();
+        StopAllCoroutines();
     }
 
     void Update()
@@ -226,14 +238,14 @@ public class AudioManager : MonoBehaviour, IBootstraped
 
         float duration = fade >= 0f ? fade : musicFade;
 
-        musicSource.DOKill();
+        musicSource.Stop();
         musicSource.clip = clip;
         musicSource.loop = true;
         musicSource.volume = 0f;
         musicSource.Play();
 
         currentMusicScale = Mathf.Clamp01(volume);
-        musicSource.DOFade(EffectiveVolume(musicVolume, currentMusicScale), duration).SetLink(gameObject);
+        FadeSource(musicSource, MusicEffectiveVolume(currentMusicScale), duration, false, ref musicFadeRoutine);
     }
 
     public void StopMusic(float fade = -1f)
@@ -242,13 +254,8 @@ public class AudioManager : MonoBehaviour, IBootstraped
 
         float duration = fade >= 0f ? fade : musicFade;
 
-        musicSource.DOKill();
-        musicSource.DOFade(0f, duration).SetLink(gameObject).OnComplete(() =>
-        {
-            if (musicSource != null) musicSource.Stop();
-        });
-
         musicId = null;
+        FadeSource(musicSource, 0f, duration, true, ref musicFadeRoutine);
     }
 
     // ------------------------------------------------------------------ one-shot SFX
@@ -316,27 +323,68 @@ public class AudioManager : MonoBehaviour, IBootstraped
 
         if (engineSource.isPlaying && engineSource.clip == clip) return;
 
-        engineSource.DOKill();
+        engineSource.Stop();
         engineSource.clip = clip;
         engineSource.loop = true;
         engineSource.volume = 0f;
         engineSource.Play();
 
         currentEngineScale = Mathf.Clamp01(volume);
-        engineSource.DOFade(EffectiveVolume(engineVolume, currentEngineScale), engineFade).SetLink(gameObject);
+        FadeSource(engineSource, EffectiveVolume(engineVolume, currentEngineScale), engineFade, false, ref engineFadeRoutine);
     }
 
     public void StopEngine()
     {
         if (engineSource == null || !engineSource.isPlaying) return;
 
-        engineSource.DOKill();
-        engineSource.DOFade(0f, engineFade).SetLink(gameObject).OnComplete(() =>
-        {
-            if (engineSource != null) engineSource.Stop();
-        });
-
         engineId = null;
+        FadeSource(engineSource, 0f, engineFade, true, ref engineFadeRoutine);
+    }
+
+    // ------------------------------------------------------------------ fades
+
+    /// <summary>
+    /// Fades a source over <paramref name="duration"/> seconds of unscaled time.
+    /// <para>
+    /// A plain coroutine instead of a DOTween tween on purpose: audio is started from
+    /// Bootstrap.Awake, and a tween created that early never advances here (the music came
+    /// up at volume 0 and stayed there).
+    /// </para>
+    /// </summary>
+    void FadeSource(AudioSource source, float target, float duration, bool stopAfter,
+        ref Coroutine routine)
+    {
+        if (routine != null) StopCoroutine(routine);
+
+        routine = StartCoroutine(FadeRoutine(source, target, duration, stopAfter));
+    }
+
+    IEnumerator FadeRoutine(AudioSource source, float target, float duration, bool stopAfter)
+    {
+        if (source == null) yield break;
+
+        float start = source.volume;
+
+        if (duration > 0f)
+        {
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+
+                if (source == null) yield break;
+
+                source.volume = Mathf.Lerp(start, target, Mathf.Clamp01(elapsed / duration));
+                yield return null;
+            }
+        }
+
+        if (source == null) yield break;
+
+        source.volume = target;
+
+        if (stopAfter) source.Stop();
     }
 
     // ------------------------------------------------------------------ helpers
@@ -347,12 +395,21 @@ public class AudioManager : MonoBehaviour, IBootstraped
         return Mathf.Clamp01(masterVolume) * Mathf.Clamp01(channel) * Mathf.Clamp01(cueScale);
     }
 
+    /// <summary>
+    /// Final volume of the music: the regular mix times <see cref="musicGain"/>, so the
+    /// soundtrack always sits a little below the sound effects.
+    /// </summary>
+    float MusicEffectiveVolume(float cueScale)
+    {
+        return EffectiveVolume(musicVolume * musicGain, cueScale);
+    }
+
     /// <summary>Re-applies the volumes to the sources that are playing right now.</summary>
     void ApplyVolumes()
     {
         if (musicSource != null && musicSource.isPlaying)
         {
-            musicSource.volume = EffectiveVolume(musicVolume, currentMusicScale);
+            musicSource.volume = MusicEffectiveVolume(currentMusicScale);
         }
 
         if (engineSource != null && engineSource.isPlaying)

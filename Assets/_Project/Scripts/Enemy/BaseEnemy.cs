@@ -230,6 +230,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
         Debug.Log($"{name} took {damage} damage, hp left: {enemyStats.health}");
 
         G.Get<DamagePopupSpawner>()?.ShowEnemyDamage(applied, transform.position);
+        G.Get<AudioManager>()?.PlaySfx("enemyDamage");
 
         UpdateHealthUI();
 
@@ -240,6 +241,8 @@ public class BaseEnemy : MonoBehaviour, ITurner
     {
         isAlive = false;
         Debug.Log($"{name} died");
+
+        G.Get<AudioManager>()?.PlaySfx("death");
 
         DropLoot();
 

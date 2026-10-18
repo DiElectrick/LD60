@@ -134,6 +134,8 @@ public class ShopPanelUI : SlidingStationPanel
     {
         if (offer == null || offer.Item == null || offer.Sold) return;
 
+        G.Get<AudioManager>()?.PlaySfx("blipSelect");
+
         var inventory = G.Get<ModuleInventory>();
         if (inventory == null) return;
 
@@ -150,6 +152,7 @@ public class ShopPanelUI : SlidingStationPanel
         if (resources != null && !resources.TrySpend(priceResource, cost))
         {
             Debug.Log($"[Shop] Not enough {priceResource}: {resources.Get(priceResource)}/{cost}");
+            G.Get<AudioManager>()?.PlaySfx("error");
             return;
         }
 

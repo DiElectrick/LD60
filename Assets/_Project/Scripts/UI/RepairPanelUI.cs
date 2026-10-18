@@ -60,6 +60,8 @@ public class RepairPanelUI : SlidingStationPanel
 
         if (city == null || repairButton == null) return;
 
+        G.Get<AudioManager>()?.PlaySfx("blipSelect");
+
         if (city.CurrentHealth >= city.Stats.health)
         {
             Debug.Log("[Repair] City is already at full durability");
@@ -71,6 +73,7 @@ public class RepairPanelUI : SlidingStationPanel
         {
             Debug.Log($"[Repair] Not enough {repairButton.resource}: " +
                       $"{resources.Get(repairButton.resource)}/{repairButton.cost}");
+            G.Get<AudioManager>()?.PlaySfx("error");
             return;
         }
 

@@ -306,6 +306,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         curentTakeDamage += applied;
 
         G.Get<DamagePopupSpawner>()?.ShowCityDamage(applied, transform.position);
+        G.Get<AudioManager>()?.PlaySfx("hitHurt");
 
         UpdateHealthUI();
         Damaged?.Invoke();
