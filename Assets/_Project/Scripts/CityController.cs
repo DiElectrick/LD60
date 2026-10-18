@@ -246,6 +246,22 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         isStunned = true;
     }
 
+    /// <summary>
+    /// Repairs the city: lowers the damage it has taken (never below zero).
+    /// Used by the repair station.
+    /// </summary>
+    public void Repair(int amount)
+    {
+        if (amount <= 0) return;
+
+        int before = curentTakeDamage;
+        curentTakeDamage = Mathf.Max(0, curentTakeDamage - amount);
+
+        UpdateHealthUI();
+
+        Debug.Log($"[Repair] Restored {before - curentTakeDamage} hp ({CurrentHealth}/{stats.health})");
+    }
+
     /// <summary>Reset for a new battle (also drops any stun).</summary>
     public void Restart()
     {

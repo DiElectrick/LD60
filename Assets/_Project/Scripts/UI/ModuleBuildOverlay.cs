@@ -329,13 +329,21 @@ public class ModuleBuildOverlay : MonoBehaviour, IBootstraped
         labelLayer.offsetMax = Vector2.zero;
         labelLayer.SetAsLastSibling();
 
-        // The shop panel must cover the badges: keep the label layer *above* the shop in
-        // the hierarchy sense (earlier siblings are drawn first, so they end up below).
-        var shop = FindAnyObjectByType<ShopPanelUI>(FindObjectsInactive.Include);
-        if (shop != null && shop.transform.parent == canvas.transform)
+        // Station panels (shop, repair, ...) must cover the badges: keep the label layer
+        // above the first panel in the hierarchy sense (earlier siblings are drawn first,
+        // so they end up below).
+        int insertAt = -1;
+
+        var panels = FindObjectsByType<StationPanel>(FindObjectsInactive.Include);
+        foreach (var panel in panels)
         {
-            labelLayer.SetSiblingIndex(shop.transform.GetSiblingIndex());
+            if (panel == null || panel.transform.parent != canvas.transform) continue;
+
+            int index = panel.transform.GetSiblingIndex();
+            if (insertAt < 0 || index < insertAt) insertAt = index;
         }
+
+        if (insertAt >= 0) labelLayer.SetSiblingIndex(insertAt);
     }
 
     // ------------------------------------------------------------------ helpers

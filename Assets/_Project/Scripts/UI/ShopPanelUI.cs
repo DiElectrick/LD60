@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,15 +6,15 @@ using UnityEngine.UI;
 /// <summary>
 /// Station shop: while the city is stopped it offers a few generated modules for resources.
 /// <para>
-/// Every offer is a slot that looks exactly like a storage slot (same sprite, same icon
-/// size), with the price (resource icon + amount) next to it. Clicking a slot buys the
-/// item, hovering it shows its tooltip.
+/// Every offer is a slot that looks like a storage slot (prefab: Resources/UI/ShopSlot),
+/// with the price (resource icon + amount) next to it. Clicking a slot buys the item,
+/// hovering it shows its tooltip.
 /// </para>
-/// The panel sits in the middle of the screen. Its handle (the button on its right edge)
-/// toggles it: instead of disappearing the panel slides off the left screen edge and keeps
-/// only the handle visible, so it can always be brought back.
+/// There is no show/hide button: the panel sits where it is placed in the scene and slides
+/// off screen (see <see cref="SlidingStationPanel"/>), coming back when its map node opens
+/// the station.
 /// </summary>
-public class ShopPanelUI : StationPanel
+public class ShopPanelUI : SlidingStationPanel
 {
     [Header("Offers")]
     [Tooltip("How many modules the shop offers.")]
@@ -65,16 +64,6 @@ public class ShopPanelUI : StationPanel
 
     [SerializeField] ResourceType priceResource = ResourceType.ScrapMetal;
 
-    [Header("Slide")]
-    [SerializeField] float slideDuration = 0.35f;
-
-    [Tooltip("Gap kept between the handle and the left screen edge when the panel is hidden.")]
-    [SerializeField] float edgeMargin = 4f;
-
-    [Header("Handle")]
-    [SerializeField] Vector2 handleSize = new(12f, 34f);
-    [SerializeField] Color handleColor = new(0.82f, 0.62f, 0.32f, 1f);
-
     [Header("Look")]
     [Tooltip("Font of the generated labels. Falls back to the TMP default font.")]
     [SerializeField] TMP_FontAsset font;
@@ -85,82 +74,24 @@ public class ShopPanelUI : StationPanel
     readonly List<ShopOfferUI> offers = new();
     readonly Dictionary<ResourceType, Sprite> priceIcons = new();
 
-    /// <summary>Where the slot prefab is loaded from when it is not assigned.</summary>
-    const string SlotPrefabResourcePath = "UI/ShopSlot";
-
-    RectTransform rect;
-    RectTransform canvasRect;
-    Vector2 basePosition;
-
-    GameObject handle;
-    TMP_Text handleLabel;
     TMP_Text title;
-
-    bool expanded = true;
     int openLevel;
 
-    public override bool IsOpen => gameObject.activeSelf;
+    /// <summary>Where the slot prefab is loaded from when it is not assigned.</summary>
+    const string SlotPrefabResourcePath = "UI/ShopSlot";
 
     /// <summary>Slots currently offered (sold ones stay listed, marked as sold).</summary>
     public IReadOnlyList<ShopOfferUI> Offers => offers;
 
     // ------------------------------------------------------------------ station API
 
-    public override void Open(int level)
+    protected override void OnBeforeOpen(int level)
     {
         openLevel = level > 0 ? level : baseLevel;
 
-        EnsureReady();
-        gameObject.SetActive(true);
-
-        // Draw on top of the build-mode level badges of the city (later sibling = on top).
-        transform.SetAsLastSibling();
-
+        EnsureRows();
         EnsureTitle();
-        EnsureHandle();
-
         RollOffers();
-
-        expanded = true;
-        UpdateHandleLabel();
-
-        // Slide back in from the left edge.
-        rect.DOKill();
-        rect.anchoredPosition = HiddenPosition();
-        rect.DOAnchorPos(basePosition, slideDuration).SetEase(Ease.OutCubic).SetLink(gameObject);
-    }
-
-    public override void Close()
-    {
-        if (!gameObject.activeSelf) return;
-
-        expanded = false;
-        UpdateHandleLabel();
-
-        rect.DOKill();
-        rect.DOAnchorPos(HiddenPosition(), slideDuration)
-            .SetEase(Ease.InCubic)
-            .SetLink(gameObject)
-            .OnComplete(() => gameObject.SetActive(false));
-    }
-
-    // ------------------------------------------------------------------ show / hide
-
-    /// <summary>Hides the panel to the left edge, leaving only the handle (and back).</summary>
-    public void Toggle()
-    {
-        SetExpanded(!expanded);
-    }
-
-    void SetExpanded(bool value)
-    {
-        expanded = value;
-        UpdateHandleLabel();
-
-        rect.DOKill();
-        rect.DOAnchorPos(value ? basePosition : HiddenPosition(), slideDuration)
-            .SetEase(value ? Ease.OutCubic : Ease.InCubic)
-            .SetLink(gameObject);
     }
 
     // ------------------------------------------------------------------ offers
@@ -278,20 +209,6 @@ public class ShopPanelUI : StationPanel
 
     // ------------------------------------------------------------------ setup
 
-    void EnsureReady()
-    {
-        if (rect == null)
-        {
-            rect = (RectTransform)transform;
-            basePosition = rect.anchoredPosition;
-
-            var canvas = ScreenCanvas.Find();
-            canvasRect = canvas != null ? canvas.transform as RectTransform : null;
-        }
-
-        EnsureRows();
-    }
-
     void EnsureRows()
     {
         if (offers.Count > 0) return;
@@ -408,41 +325,6 @@ public class ShopPanelUI : StationPanel
         return offer;
     }
 
-    /// <summary>Slider handle on the right edge of the panel: shows / hides it.</summary>
-    void EnsureHandle()
-    {
-        if (handle != null) return;
-
-        handle = new GameObject("ShopHandle",
-            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
-        handle.transform.SetParent(transform, false);
-        handle.transform.SetAsLastSibling();
-
-        var handleRect = (RectTransform)handle.transform;
-        handleRect.anchorMin = new Vector2(1f, 0.5f);
-        handleRect.anchorMax = new Vector2(1f, 0.5f);
-        handleRect.pivot = new Vector2(0f, 0.5f);
-        handleRect.anchoredPosition = Vector2.zero;
-        handleRect.sizeDelta = handleSize;
-
-        var image = handle.GetComponent<Image>();
-        image.color = handleColor;
-
-        var button = handle.GetComponent<Button>();
-        button.targetGraphic = image;
-        button.onClick.AddListener(Toggle);
-
-        handleLabel = CreateText(handleRect, "Text",
-            Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
-            Vector2.zero, Vector2.zero, TextAlignmentOptions.Center, 8f);
-
-        var labelRect = (RectTransform)handleLabel.transform;
-        labelRect.offsetMin = Vector2.zero;
-        labelRect.offsetMax = Vector2.zero;
-
-        UpdateHandleLabel();
-    }
-
     void EnsureTitle()
     {
         if (title != null) return;
@@ -453,11 +335,6 @@ public class ShopPanelUI : StationPanel
 
         title.fontStyle = FontStyles.Bold;
         title.text = "SHOP";
-    }
-
-    void UpdateHandleLabel()
-    {
-        if (handleLabel != null) handleLabel.text = expanded ? "<" : ">";
     }
 
     // ------------------------------------------------------------------ helpers
@@ -507,24 +384,6 @@ public class ShopPanelUI : StationPanel
     Sprite PriceIconSprite(ResourceType type)
     {
         return priceIcons.TryGetValue(type, out var sprite) ? sprite : null;
-    }
-
-    /// <summary>Where the panel sits when it is hidden - off the left screen edge.</summary>
-    Vector2 HiddenPosition()
-    {
-        return basePosition + new Vector2(HiddenShift(), 0f);
-    }
-
-    float HiddenShift()
-    {
-        if (canvasRect == null) return -(rect.rect.width + handleSize.x + 20f);
-
-        float halfWidth = canvasRect.rect.width * 0.5f;
-        float rightEdge = basePosition.x + rect.rect.width * 0.5f;
-        float targetRightEdge = -halfWidth + handleSize.x + edgeMargin;
-
-        // Never push it further right than its resting position.
-        return Mathf.Min(0f, targetRightEdge - rightEdge);
     }
 
     TMP_Text CreateText(RectTransform parent, string name, Vector2 anchorMin, Vector2 anchorMax,
