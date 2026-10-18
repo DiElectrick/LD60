@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8777c140408f3df40979589f5bb961a0, type: 3}
   m_Name: ShieldMod
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
-  displayName: Gun
-  prefab: {fileID: 6382748205993348124, guid: cf567ad02f8a4b54b945b839d1d80030, type: 3}
+  displayName: Shield
+  prefab: {fileID: 7465550697895937095, guid: fa542c5574d6b0d4a83e897211bc4cfe, type: 3}
   bonus:
     atack: 0
     speed: 0
@@ -21,6 +21,9 @@ MonoBehaviour:
     def: 10
     regen: 0
     stanChance: 0
+  mainStat: 0
+  extraStatPool: 
+  isEngine: 0
   icon: {fileID: 0}
   recycleRecipe:
   - type: 0

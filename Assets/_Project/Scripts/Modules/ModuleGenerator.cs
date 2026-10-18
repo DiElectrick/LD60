@@ -70,6 +70,15 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
                 loadedPool.AddRange(Resources.LoadAll<ModuleData>(ModuleResourceFolder));
                 loadedPool.RemoveAll(data => data == null);
                 Debug.Log($"[Generator] Loaded {loadedPool.Count} module archetypes from Resources/{ModuleResourceFolder}");
+
+                // The UI icon comes from ModuleData.icon, or from the prefab art when no icon
+                // is assigned - stating it once makes a mixed set of icons easy to spot.
+                foreach (var data in loadedPool)
+                {
+                    if (data.icon != null) continue;
+
+                    Debug.Log($"[Generator] '{data.name}' has no icon assigned - its UI icon is the prefab art");
+                }
             }
 
             return loadedPool;
