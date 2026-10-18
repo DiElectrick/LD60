@@ -48,6 +48,9 @@ public class ModuleDragController : MonoBehaviour
     public event Action DragStarted;
     public event Action DragEnded;
 
+    /// <summary>Raised when an item was taken out of the storage and installed in the city.</summary>
+    public event Action<ModuleInstance> ModuleInstalled;
+
     /// <summary>What the pointer is over while dragging: an inventory slot or the destruction zone.</summary>
     readonly struct DropTarget
     {
@@ -228,6 +231,8 @@ public class ModuleDragController : MonoBehaviour
         G.Get<AudioManager>()?.PlaySfx("set");
 
         slot?.ConsumeModule();
+
+        ModuleInstalled?.Invoke(item);
     }
 
     void DropFromCity(Module module, ModuleInstance item, Vector2 screenPosition)
@@ -326,6 +331,9 @@ public class ModuleDragController : MonoBehaviour
 
     void Grant(ModuleInstance item, List<ResourceDrop> drops)
     {
+        // Scrapping has its own feedback: the module is torn apart, not placed in the city.
+        G.Get<AudioManager>()?.PlaySfx("set");
+
         G.Get<ResourceManager>()?.AddDrops(drops);
 
         Debug.Log($"[Recycle] Scrapped '{item.DisplayName}' -> {ModuleRecycling.Describe(drops)}");

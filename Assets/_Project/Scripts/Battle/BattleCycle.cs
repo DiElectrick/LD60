@@ -125,6 +125,9 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     /// <summary>Raised when the boss dies and the run is over (hook the end screen here).</summary>
     public event Action RunCompleted;
 
+    /// <summary>Raised when a battle actually starts - the enemies are in and the turn loop runs.</summary>
+    public event Action BattleStarted;
+
     /// <summary>The path of this run (assigned in the inspector, or loaded from Resources).</summary>
     public MapRoute Route => route;
 
@@ -552,6 +555,8 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         isBattleRunning = true;
 
         Debug.Log($"[Battle] Started '{encounter.displayName}' with {turners.Count} enemies");
+
+        BattleStarted?.Invoke();
     }
 
     void Update()

@@ -8,6 +8,11 @@ public class Bootstrap : MonoBehaviour
 
     void Awake()
     {
+        // A run always starts with the clock running. The scene may have been stopped while the
+        // pause menu had the game frozen (Time.timeScale = 0 is not part of the scene, so it can
+        // survive into the next play session) - without this the whole game would boot frozen.
+        Time.timeScale = 1f;
+
         //CMS.Init();
         //interactor = new Interactor();
         //interactor.Init();

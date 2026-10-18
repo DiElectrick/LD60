@@ -1807,11 +1807,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d36ea0831813efd4a911ba6aa6396a5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
-  masterVolume: 1
+  masterVolume: 0.803
   musicVolume: 0.5
   sfxVolume: 0.5
   musicGain: 0.7
-  engineVolume: 1
+  engineVolume: 0.808
   music:
   - id: driftWestland
     clip: {fileID: 8300000, guid: bf35e6a13bf7a6b479b224b98650facb, type: 3}
@@ -1863,7 +1863,7 @@ MonoBehaviour:
   engineStart:
     id: engineStart
     clip: {fileID: 8300000, guid: b7866fbb9b757ce419deb429fa4ee4e8, type: 3}
-    volume: 0.85
+    volume: 0.449
     pitchSpread: 0
     bypassInterval: 1
   engineFollowsWorld: 1
@@ -10940,8 +10940,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4.36
-  m_fontSizeBase: 4.36
+  m_fontSize: 5.02
+  m_fontSizeBase: 5.02
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -12486,6 +12486,80 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Shaker
   idleAmplitude: 0.035
   shakeRate: 8
+--- !u!1 &1637333611
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1637333612}
+  - component: {fileID: 1637333613}
+  m_Layer: 0
+  m_Name: Tutorial
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1637333612
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1637333611}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1678210258}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1637333613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1637333611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9a69abaa3e858b47b61f2f850e3b0ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialController
+  onlyFirstRun: 1
+  alwaysShow: 0
+  startDelay: 0.9
+  buildText: Build your city from modules
+  statsText: Modules affect stats
+  departText: Set out on your journey
+  battleText: Combat is automatic
+  statsHoldTime: 4
+  battleHoldTime: 5
+  dragPeriod: 1.8
+  dragTravelShare: 0.6
+  buildTarget: {fileID: 0}
+  statsTarget: {fileID: 0}
+  departTarget: {fileID: 0}
+  dragTarget: {fileID: 0}
+  handSprite: {fileID: 230630624, guid: cf35238f79131814a89d74f21bfd3311, type: 3}
+  handSize: {x: 15.2, y: 12}
+  handOffset: {x: 0, y: -18}
+  handBob: 2.5
+  handColor: {r: 1, g: 1, b: 1, a: 1}
+  font: {fileID: 11400000, guid: 606a2e050cb4b034db79b138c117ecac, type: 2}
+  textWidth: 300
+  textFontSize: 9
+  textOffset: {x: 0, y: 3}
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  textBackground: {r: 0.04, g: 0.05, b: 0.08, a: 0.92}
+  textPadding: 4
+  dimColor: {r: 0, g: 0, b: 0, a: 0.55}
+  frameColor: {r: 1, g: 0.84, b: 0.36, a: 1}
+  spotlightPadding: 3
 --- !u!1 &1639285494
 GameObject:
   m_ObjectHideFlags: 0
@@ -12668,6 +12742,8 @@ Transform:
   - {fileID: 199456884}
   - {fileID: 1232799391}
   - {fileID: 408989361}
+  - {fileID: 1637333612}
+  - {fileID: 2013804073}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1678210259
@@ -13996,6 +14072,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2003080741}
   m_CullTransparentMesh: 1
+--- !u!1 &2013804072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2013804073}
+  - component: {fileID: 2013804074}
+  m_Layer: 0
+  m_Name: LoadingFade
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2013804073
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2013804072}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1678210258}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2013804074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2013804072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de4536ec4e26a0f4b915ad9699768222, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LoadingFade
+  color: {r: 0, g: 0, b: 0, a: 1}
+  holdTime: 0.3
+  fadeDuration: 0.55
+  blockInput: 1
 --- !u!4 &2030167104 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1306159099185091620, guid: 38341108a52f2bf48b88adc5287ae5de, type: 3}
