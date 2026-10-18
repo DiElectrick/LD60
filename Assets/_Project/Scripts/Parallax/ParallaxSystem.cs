@@ -56,4 +56,19 @@ public class ParallaxSystem : MonoBehaviour
         speedTween?.Kill();
         speedMultiplier = baseSpeed;
     }
+
+    /// <summary>Eases the scrolling back up to the authored speed (used while travelling on).</summary>
+    public void ResumeScrolling(float duration)
+    {
+        speedTween?.Kill();
+
+        if (duration <= 0f)
+        {
+            speedMultiplier = baseSpeed;
+            return;
+        }
+
+        speedTween = DOTween.To(() => speedMultiplier, value => speedMultiplier = value, baseSpeed, duration)
+            .SetEase(Ease.InQuad);
+    }
 }

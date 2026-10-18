@@ -1,20 +1,30 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Drives the gameplay loop: spawn an encounter -> fight until every enemy is dead ->
-/// victory coast (the world keeps rolling for a moment) -> the parallax brakes to a
-/// stop and the city shakes -> the station of the current map node opens (module panel
-/// plus whatever else the node lists, e.g. the shop) -> "Next" -> the next encounter.
+/// Drives one run: a <see cref="MapRoute"/> assigns the player's path.
+/// <para>
+/// Every stop of the route is one battle - the encounter of the stop's map node - after
+/// which that node's station opens (module panel plus the shop / repair it lists). "Next"
+/// then travels on to the next stop. After the last stop the boss encounter is fought and,
+/// once it is dead, the run is over: no more battles, no station, just the end screen.
+/// </para>
 /// </summary>
 public class BattleCycle : MonoBehaviour, IBootstraped
 {
     public bool isInitialised { get; set; }
 
+    [Tooltip("The player's path. Empty = the first MapRoute in Resources/" + MapRoute.ResourceFolder + ".")]
+    [SerializeField] MapRoute route;
+
+    [Header("Fallback (no route assigned)")]
+    [Tooltip("Encounter fought when there is no route at all.")]
     public EncounterData startingEncounter;
 
-    [Tooltip("Map node the game starts on. When empty, the first MapNode in Resources/Map is used.")]
+    [Tooltip("Node whose station opens after every victory when there is no route.")]
     [SerializeField] MapNode startingNode;
 
     [Header("Victory animation")]
@@ -29,6 +39,11 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     [SerializeField] float moduleShakeAmplitude = 0.06f;
     [SerializeField] float platformShakeAmplitude = 0.08f;
 
+    [Header("Run end")]
+    [Tooltip("Travel transition that carries the city between the stops (and plays the end " +
+             "screen after the boss). Empty = found in the scene.")]
+    [SerializeField] TravelTransition travel;
+
     TurnManager turnManager;
     EnemyManager enemyManager;
     EnemySpawner spawner;
@@ -41,42 +56,59 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     bool isBattleRunning;
     Tween spawnDelay;
 
-    // Victory sequence: coast (world keeps rolling) -> brake + shake -> station.
+    // Victory sequence: coast (world keeps rolling) -> brake + shake -> station / end screen.
     Tween coastDelay;
     Tween panelDelay;
 
+    // Where the run currently is: the stop being travelled to, the boss, or the end.
+    int stopIndex;
+    bool isBossBattle;
+    bool isRunOver;
+
+    /// <summary>True while the station slides away and the next stop has not started yet.</summary>
+    bool isAdvancing;
+
     static MapNode defaultNode;
 
-    /// <summary>
-    /// Map node the city is currently at. The map sets this when it moves between nodes;
-    /// the station that opens after a stop comes from it.
-    /// </summary>
-    public MapNode CurrentNode { get; set; }
+    /// <summary>Raised when the boss dies and the run is over (hook the end screen here).</summary>
+    public event Action RunCompleted;
 
-    /// <summary>The node in use: an explicitly set one, the starting node, or a Resources fallback.</summary>
-    public MapNode Node
+    /// <summary>The path of this run (assigned in the inspector, or loaded from Resources).</summary>
+    public MapRoute Route => route;
+
+    /// <summary>Index of the stop the city is travelling to / standing at (0-based).</summary>
+    public int StopIndex => stopIndex;
+
+    /// <summary>Number of stops of the route (0 when there is no route).</summary>
+    public int StopCount => route != null ? route.StopCount : 0;
+
+    /// <summary>True while the boss encounter is running.</summary>
+    public bool IsBossBattle => isBossBattle;
+
+    /// <summary>True once the boss is dead - nothing else is fought.</summary>
+    public bool IsRunOver => isRunOver;
+
+    /// <summary>Node of the stop being travelled to / stood at. Null during the boss fight.</summary>
+    public MapNode CurrentNode
     {
         get
         {
-            if (CurrentNode != null) return CurrentNode;
-            if (startingNode != null) return startingNode;
+            if (isBossBattle) return null;
 
-            if (defaultNode == null)
-            {
-                var nodes = Resources.LoadAll<MapNode>(MapNode.ResourceFolder);
-                if (nodes.Length > 0) defaultNode = nodes[0];
-            }
+            if (route != null) return route.GetStop(stopIndex);
 
-            return defaultNode;
+            return startingNode != null ? startingNode : DefaultNode();
         }
     }
 
-    /// <summary>Encounter of the current node (or the authored starting encounter).</summary>
+    /// <summary>Encounter of the current step: the stop's own encounter, or the boss.</summary>
     public EncounterData CurrentEncounter
     {
         get
         {
-            var node = Node;
+            if (isBossBattle) return route != null ? route.bossEncounter : null;
+
+            var node = CurrentNode;
             return node != null && node.encounter != null ? node.encounter : startingEncounter;
         }
     }
@@ -89,6 +121,9 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         city = G.Get<CityController>();
         station = G.Get<StationController>();
         parallax = FindAnyObjectByType<ParallaxSystem>();
+
+        if (travel == null)
+            travel = FindAnyObjectByType<TravelTransition>(FindObjectsInactive.Include);
 
         modulePanel = FindAnyObjectByType<ModulePanelUI>(FindObjectsInactive.Include);
         if (modulePanel != null)
@@ -104,17 +139,174 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
     void Start()
     {
-        StartEncounter(CurrentEncounter);
+        BeginRun();
     }
 
-    /// <summary>Moves the city to a map node: fights its encounter and opens its station afterwards.</summary>
-    public void EnterNode(MapNode node)
+    // ------------------------------------------------------------------ run / route
+
+    /// <summary>Starts a fresh run at the first stop of the route.</summary>
+    public void BeginRun()
     {
-        CurrentNode = node;
+        stopIndex = 0;
+        isBossBattle = false;
+        isRunOver = false;
+        isAdvancing = false;
+
+        if (route == null) route = MapRoute.LoadDefault();
+
+        if (route == null || !route.HasStops)
+        {
+            Debug.LogWarning($"[Battle] No map route in Resources/{MapRoute.ResourceFolder} - " +
+                             "falling back to the starting node / encounter");
+
+            StartEncounter(CurrentEncounter);
+            return;
+        }
+
+        Debug.Log($"[Battle] Run '{route.displayName}': {StopCount} stops " +
+                  $"({route.CountStopsWith("shop")} shop, {route.CountStopsWith("repair")} repair), " +
+                  $"boss '{NameOf(route.bossEncounter)}'");
+        Debug.Log($"[Battle] Path: {DescribeRoute(route)}");
+
+        StartStopBattle();
+    }
+
+    /// <summary>Jumps to a stop of the route (debug / testing helper).</summary>
+    public void EnterStop(int index)
+    {
+        if (route == null || !route.HasStops) return;
+
+        stopIndex = Mathf.Clamp(index, 0, route.StopCount - 1);
+        isBossBattle = false;
+        isRunOver = false;
+        isAdvancing = false;
 
         station?.CloseAll();
+        StartStopBattle();
+    }
+
+    /// <summary>Fights the battle that leads to the stop the run is currently at.</summary>
+    void StartStopBattle()
+    {
+        var node = CurrentNode;
+
+        if (node == null)
+        {
+            Debug.LogWarning($"[Battle] Route stop {stopIndex + 1}/{StopCount} is empty - ending the run");
+            EndRun();
+            return;
+        }
+
+        Debug.Log($"[Battle] Stop {stopIndex + 1}/{StopCount}: {node.displayName} " +
+                  $"[{string.Join("+", node.stationPanels)}]");
+
         StartEncounter(CurrentEncounter);
     }
+
+    /// <summary>Travels on after a station: the next stop, or the boss after the last one.</summary>
+    void AdvanceAfterStop()
+    {
+        if (route == null || !route.HasStops)
+        {
+            // No route: the fallback simply repeats its encounter.
+            StartEncounter(CurrentEncounter);
+            return;
+        }
+
+        stopIndex++;
+
+        if (stopIndex < route.StopCount) StartStopBattle();
+        else StartBossBattle();
+    }
+
+    /// <summary>The boss encounter after the last stop. A normal encounter - it just ends the run.</summary>
+    void StartBossBattle()
+    {
+        if (route.bossEncounter == null)
+        {
+            Debug.LogWarning("[Battle] The route has no boss encounter - the run ends after the last stop");
+            EndRun();
+            return;
+        }
+
+        isBossBattle = true;
+
+        Debug.Log($"[Battle] Boss: '{route.bossEncounter.displayName}'");
+        StartEncounter(route.bossEncounter);
+    }
+
+    /// <summary>Run over: everything stops, no station opens and nothing else is spawned.</summary>
+    void EndRun()
+    {
+        isRunOver = true;
+        isBossBattle = false;
+        isBattleRunning = false;
+
+        station?.CloseAll();
+        turnManager?.StopBattle();
+        spawner?.DespawnAll();
+        ClearVictorySequence();
+        parallax?.BrakeToStop(stopDuration);
+
+        Debug.Log("[Battle] Run complete - every stop cleared and the boss defeated");
+
+        // The last travel keeps its screen: full bar, message and restart button.
+        if (travel != null) travel.PlayEnd(NodeProgress(StopCount), RestartRun);
+        else Debug.LogWarning("[Battle] No travel transition in the scene - no end screen");
+
+        RunCompleted?.Invoke();
+    }
+
+    /// <summary>Starts a new run: the scene is reloaded, so city, stations and route start fresh.</summary>
+    void RestartRun()
+    {
+        spawnDelay?.Kill();
+        ClearVictorySequence();
+
+        // Services of the old scene must not survive into the new one.
+        G.Clear();
+
+        var scene = SceneManager.GetActiveScene();
+        if (scene.buildIndex >= 0) SceneManager.LoadScene(scene.buildIndex);
+        else SceneManager.LoadScene(scene.name);
+    }
+
+    static string DescribeRoute(MapRoute route)
+    {
+        var parts = new List<string>();
+
+        for (int i = 0; i < route.StopCount; i++)
+        {
+            var node = route.GetStop(i);
+            string name = node != null ? node.displayName : "missing";
+            string panels = node != null ? string.Join("+", node.stationPanels) : "?";
+
+            parts.Add($"{i + 1}. {name} [{panels}]");
+        }
+
+        parts.Add($"boss: {NameOf(route.bossEncounter)}");
+
+        return string.Join(" -> ", parts);
+    }
+
+    static string NameOf(EncounterData encounter)
+    {
+        return encounter != null ? encounter.displayName : "none";
+    }
+
+    /// <summary>Node used when there is no route and no starting node: first MapNode in Resources.</summary>
+    static MapNode DefaultNode()
+    {
+        if (defaultNode == null)
+        {
+            var nodes = Resources.LoadAll<MapNode>(MapNode.ResourceFolder);
+            if (nodes.Length > 0) defaultNode = nodes[0];
+        }
+
+        return defaultNode;
+    }
+
+    // ------------------------------------------------------------------ battles
 
     public void StartEncounter(EncounterData encounter)
     {
@@ -190,8 +382,8 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         if (coast <= 0f) PlayStopAnimation();
         else coastDelay = DOVirtual.DelayedCall(coast, PlayStopAnimation);
 
-        // The panel slides in once everything is still.
-        panelDelay = DOVirtual.DelayedCall(coast + stopDuration, ShowStation);
+        // The station (or the end screen after the boss) slides in once everything is still.
+        panelDelay = DOVirtual.DelayedCall(coast + stopDuration, AfterVictory);
     }
 
     /// <summary>Brake the world and make the city shiver while it comes to a halt.</summary>
@@ -231,17 +423,26 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     }
 
     /// <summary>
-    /// Opens the station of the current map node: the module panel plus whatever else the
-    /// node lists (the shop on a normal stop). Falls back to the module panel alone.
+    /// After a victory: opens the station of the current stop (module panel plus whatever
+    /// else the node lists), or ends the run when the fallen enemy was the boss.
     /// </summary>
-    void ShowStation()
+    void AfterVictory()
     {
         panelDelay = null;
+        isAdvancing = false;
 
-        if (station != null && Node != null)
+        // The boss has no station - beating it is the end of the run.
+        if (isBossBattle)
         {
-            Debug.Log($"[Battle] Station of '{Node.displayName}': {string.Join(", ", Node.stationPanels)}");
-            station.Open(Node);
+            EndRun();
+            return;
+        }
+
+        if (station != null && CurrentNode != null)
+        {
+            Debug.Log($"[Battle] Station of '{CurrentNode.displayName}': " +
+                      $"{string.Join(", ", CurrentNode.stationPanels)}");
+            station.Open(CurrentNode);
             return;
         }
 
@@ -256,10 +457,40 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
     void OnNextPressed()
     {
+        if (isRunOver || isAdvancing) return;
+
+        // A second click while the station slides away must not skip a stop.
+        isAdvancing = true;
+
         // Closing the station first, so the shop slides away with the module panel.
         station?.CloseAll();
 
-        StartEncounter(CurrentEncounter);
+        // Travel first: the city is not thrown into the next fight, it rolls on behind a
+        // foreground object while the route bar fills half-way to the next node - the battle
+        // is fought on the way there, before the city actually reaches the node.
+        if (travel != null && travel.CanPlay)
+        {
+            // The world speeds back up; the transition itself waits for the city to get going.
+            parallax?.ResumeScrolling(travel.RampDuration);
+
+            travel.Play(NodeProgress(stopIndex), NodeProgress(stopIndex + 0.5f), AdvanceAfterStop);
+            return;
+        }
+
+        AdvanceAfterStop();
+    }
+
+    /// <summary>
+    /// Position on the travel bar, 0..1, in node units: 0 = the first stop, StopCount = the
+    /// boss. A stop is reached after its battle, so a travel only covers half the gap to the
+    /// next node - the rest of the way is the fight itself.
+    /// </summary>
+    float NodeProgress(float nodeIndex)
+    {
+        int nodes = StopCount + 1;
+        if (nodes <= 0) return 0f;
+
+        return Mathf.Clamp01((nodeIndex + 1f) / nodes);
     }
 
     void OnDestroy()

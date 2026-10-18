@@ -517,7 +517,7 @@ TextureImporter:
         width: 12
         height: 12
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -539,7 +539,7 @@ TextureImporter:
         width: 14
         height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -561,7 +561,7 @@ TextureImporter:
         width: 9
         height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -570,6 +570,50 @@ TextureImporter:
       bones: []
       spriteID: 347248824a0cd92408fef5023350d688
       internalID: -624947064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_20
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 71
+        width: 38
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a28cfbd8134748d41b3707bd99a6aa51
+      internalID: -1392394601
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NomadCity_export_21
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 45
+        width: 38
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 779a528f6959f8a488f0356c824e0750
+      internalID: -1228916203
       vertices: []
       indices: 
       edges: []
@@ -603,6 +647,8 @@ TextureImporter:
       NomadCity_export_18: -267670266
       NomadCity_export_19: -624947064
       NomadCity_export_2: -7293170466157348186
+      NomadCity_export_20: -1392394601
+      NomadCity_export_21: -1228916203
       NomadCity_export_3: -7644529716688296759
       NomadCity_export_4: -723376294
       NomadCity_export_5: 582246035

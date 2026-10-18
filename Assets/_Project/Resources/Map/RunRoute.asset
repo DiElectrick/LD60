@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 536f578f386b49d29d03c2d7ca7318ee, type: 3}
+  m_Name: RunRoute
+  m_EditorClassIdentifier: Assembly-CSharp::MapRoute
+  displayName: First Run
+  stops:
+  - {fileID: 11400000, guid: f3d130d279a42c842beb654e7952c845, type: 2}
+  - {fileID: 11400000, guid: c969bcc058febd747a15185c693a3007, type: 2}
+  - {fileID: 11400000, guid: e9c3f90e790f4366ad55afcf99aed98c, type: 2}
+  - {fileID: 11400000, guid: 8c5ee2bfefa2431195fae7d23ec7628f, type: 2}
+  - {fileID: 11400000, guid: 5bf0973a889149908343e6d5545e22c2, type: 2}
+  bossEncounter: {fileID: 11400000, guid: 40b59ddd49d1455f8cbcf21d2f7907a1, type: 2}

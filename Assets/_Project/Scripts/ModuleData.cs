@@ -43,15 +43,59 @@ public class ModuleData : ScriptableObject
     [Min(0f)]
     public float recyclePerLevel = 0.35f;
 
-    /// <summary>Sprite shown in the inventory slot (and dragged around).</summary>
+    /// <summary>
+    /// Sprite shown in the inventory, the shop and while dragging.
+    /// Assign <see cref="icon"/> to use a dedicated icon image; otherwise the module's own
+    /// art is used - the top-most sprite of the prefab, so a gun icon shows the cannon
+    /// instead of the empty mount.
+    /// </summary>
     public Sprite Icon
     {
         get
         {
             if (icon != null) return icon;
 
-            var renderer = prefab != null ? prefab.GetComponentInChildren<SpriteRenderer>(true) : null;
-            return renderer != null ? renderer.sprite : null;
+            return PrefabIcon();
         }
+    }
+
+    /// <summary>
+    /// Picks the sprite that represents the module from its prefab: the art drawn on top
+    /// (the cannon on a gun module), ignoring sprite masks and backgrounds that sit below
+    /// the art (negative sorting order).
+    /// </summary>
+    Sprite PrefabIcon()
+    {
+        if (prefab == null) return null;
+
+        var renderers = prefab.GetComponentsInChildren<SpriteRenderer>(true);
+
+        Sprite best = null;
+        int bestOrder = int.MinValue;
+
+        foreach (var renderer in renderers)
+        {
+            if (renderer == null || renderer.sprite == null) continue;
+            if (renderer.GetComponent<SpriteMask>() != null) continue;
+
+            // Backgrounds / masks sit below the art - they are not the module's look.
+            int order = renderer.sortingOrder;
+            if (order < 0) continue;
+
+            if (order < bestOrder) continue;
+
+            best = renderer.sprite;
+            bestOrder = order;
+        }
+
+        if (best != null) return best;
+
+        // Everything was a background: fall back to the first sprite there is.
+        foreach (var renderer in renderers)
+        {
+            if (renderer != null && renderer.sprite != null) return renderer.sprite;
+        }
+
+        return null;
     }
 }

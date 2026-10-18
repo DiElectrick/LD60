@@ -21,6 +21,10 @@ MonoBehaviour:
     def: 0
     regen: 0
     stanChance: 0
+  mainStat: 0
+  extraStatPool: 
+  isEngine: 0
+  icon: {fileID: -1228916203, guid: cf35238f79131814a89d74f21bfd3311, type: 3}
   recycleRecipe:
   - type: 0
     minAmount: 2
