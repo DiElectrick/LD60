@@ -22,6 +22,8 @@ public class CannonModule : AimingModule
     {
         if (projectilePrefab == null || target == null || !target.IsAlive) return;
 
+        PlayShotSound();
+
         Vector3 spawnPosition = Barrel.position + Barrel.right * muzzleDistance;
         var projectile = Instantiate(projectilePrefab, spawnPosition, Barrel.rotation);
 

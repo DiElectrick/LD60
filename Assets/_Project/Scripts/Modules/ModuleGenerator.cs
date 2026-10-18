@@ -151,7 +151,7 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
         // --- main stat: the characteristic this archetype is about ---
         var mainStat = ResolveMainStat(data);
         var mainRule = cfg.GetRule(mainStat);
-        int mainValue = Scale(tuning.RollMainValue(), mainRule, itemLevel);
+        int mainValue = ArchetypeScale(Scale(tuning.RollMainValue(), mainRule, itemLevel), data);
 
         if (mainValue > 0) instance.AddRoll(mainStat, mainValue, true);
 
@@ -166,7 +166,7 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
                 var rule = TakeWeighted(candidates);
                 if (rule == null) break;
 
-                int value = Scale(tuning.RollExtraValue(), rule, itemLevel);
+                int value = ArchetypeScale(Scale(tuning.RollExtraValue(), rule, itemLevel), data);
                 instance.AddRoll(rule.stat, value, false);
             }
         }
@@ -309,6 +309,20 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
         if (value <= 0f) return 0;
 
         return Mathf.Max(1, Mathf.RoundToInt(value));
+    }
+
+    /// <summary>
+    /// Applies the archetype's own power scale, so one weapon can hit softer than another even
+    /// though they roll from the same table (<see cref="ModuleData.rollScale"/>).
+    /// </summary>
+    static int ArchetypeScale(int value, ModuleData data)
+    {
+        if (value <= 0 || data == null) return value;
+
+        float scale = data.rollScale;
+        if (scale <= 0f || Mathf.Approximately(scale, 1f)) return value;
+
+        return Mathf.Max(1, Mathf.RoundToInt(value * scale));
     }
 
     static bool IsRollable(LevelTuning tuning, ModuleGenerationConfig cfg)

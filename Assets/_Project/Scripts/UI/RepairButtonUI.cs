@@ -26,6 +26,9 @@ public class RepairButtonUI : MonoBehaviour
     public ResourceType resource = ResourceType.ScrapMetal;
 
     [Header("View")]
+    [Tooltip("Writes the healed amount into the title (\"Restore HP +30\").")]
+    [SerializeField] bool showAmountInTitle = true;
+
     [Tooltip("Clickable button. Empty = the Button on this object.")]
     [SerializeField] Button button;
 
@@ -41,11 +44,16 @@ public class RepairButtonUI : MonoBehaviour
 
     RepairPanelUI panel;
 
+    // Title text as authored in the scene; the amount is appended to it.
+    string titleTemplate;
+    bool titleCaptured;
+
     /// <summary>Wires the button to its panel (called by the panel when it opens).</summary>
     public void Bind(RepairPanelUI owner)
     {
         panel = owner;
         ResolveReferences();
+        ShowAmount();
 
         if (button == null) return;
 
@@ -63,6 +71,21 @@ public class RepairButtonUI : MonoBehaviour
         var texts = GetComponentsInChildren<TMP_Text>(true);
         if (title == null && texts.Length > 0) title = texts[0];
         if (price == null && texts.Length > 1) price = texts[1];
+    }
+
+    /// <summary>Puts the healed amount into the title, so the buttons say what they restore.</summary>
+    void ShowAmount()
+    {
+        if (!showAmountInTitle || title == null) return;
+
+        // Keep the authored text: opening the panel again must not append the amount twice.
+        if (!titleCaptured)
+        {
+            titleTemplate = title.text;
+            titleCaptured = true;
+        }
+
+        title.text = $"{titleTemplate} +{amount}";
     }
 
     void HandleClick()

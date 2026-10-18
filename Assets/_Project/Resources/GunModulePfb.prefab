@@ -175,6 +175,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a99a7713d3d5147a09d38a02df6c5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CannonModule
+  shotSound: {fileID: 8300000, guid: 597424ee07e9b904594f59f215e1d6cf, type: 3}
+  shotVolume: 0.8
+  shotPitchSpread: 0.06
   barrel: {fileID: 338635521161593234}
   aimSpeed: 65.3
   recoilAngle: -7

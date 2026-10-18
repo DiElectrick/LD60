@@ -397,7 +397,10 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         ShowEndScreen(victory: false);
     }
 
-    /// <summary>Every module placed on the city, in platform order (snapshot - they get destroyed).</summary>
+    /// <summary>
+    /// Every module placed on the city, from the top of the caravan downwards - the death
+    /// sequence blows them up in that order (snapshot: they get destroyed).
+    /// </summary>
     List<Module> CollectModules()
     {
         var modules = new List<Module>();
@@ -412,6 +415,9 @@ public class BattleCycle : MonoBehaviour, IBootstraped
                 if (module != null) modules.Add(module);
             }
         }
+
+        // Highest module first, so the explosions run top to bottom.
+        modules.Sort((a, b) => b.transform.position.y.CompareTo(a.transform.position.y));
 
         return modules;
     }
@@ -435,7 +441,10 @@ public class BattleCycle : MonoBehaviour, IBootstraped
             return;
         }
 
-        float progress = victory ? 1f : NodeProgress(stopIndex);
+        // Defeat: the bar stops at the node the player actually reached. The battle of the
+        // current stop is fought on the way to it, so that node was never arrived at.
+        float reached = NodeProgress(Mathf.Max(0, stopIndex - 1));
+        float progress = victory ? 1f : reached;
 
         // Victory: the bar is already complete. Defeat: it fills up to the stop the city reached,
         // which reads as "this is how far the run got".

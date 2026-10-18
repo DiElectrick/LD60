@@ -90,6 +90,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43c4496ea789e974a81bdce4517ff637, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RailgunModule
+  shotSound: {fileID: 8300000, guid: 695a0a06f8a380f4680ffe08ab7a6f04, type: 3}
+  shotVolume: 0.7
+  shotPitchSpread: 0.08
   barrel: {fileID: 6544133722791104892}
   aimSpeed: 540
   recoilAngle: 0

@@ -146,8 +146,9 @@ MonoBehaviour:
   amplitude: 2
   baseSpeed: 2.5
   phasePerUnitX: 0.15
-  speedModDepth: 0.439
+  speedModDepth: 0.283
   speedModRate: 0.29
+  amplitudeRampSpeed: 0.2
 --- !u!114 &2179156767141225294
 MonoBehaviour:
   m_ObjectHideFlags: 0

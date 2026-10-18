@@ -36,6 +36,8 @@ public class RailgunModule : AimingModule
     {
         if (target == null || !target.IsAlive || beamSprite == null) return;
 
+        PlayShotSound();
+
         Vector3 origin = Barrel.position + Barrel.right * muzzleOffset;
         Vector3 direction = target.transform.position - origin;
 

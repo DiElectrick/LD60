@@ -32,6 +32,11 @@ public class ModuleData : ScriptableObject
              "generation config allows.")]
     public List<StatType> extraStatPool = new();
 
+    [Tooltip("Scales every roll of this archetype (1 = as generated, 0.85 = 15% weaker). " +
+             "Use it to make a heavy weapon hit softer than a basic gun.")]
+    [Range(0.1f, 2f)]
+    public float rollScale = 1f;
+
     [Header("Presentation")]
     [Tooltip("Engine modules vibrate while the city is running.")]
     public bool isEngine;
