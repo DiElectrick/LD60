@@ -74,6 +74,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
     // Building the city stops in front of at the current stop (null while fighting / travelling).
     StopBuilding currentBuilding;
+    float stopBuildingX;
     GroundParallaxLayer groundLayer;
 
     // Victory sequence: coast (world keeps rolling) -> brake + shake -> station / end screen.
@@ -476,8 +477,13 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         // Coast at full speed for `coast`, then slide the last bit while braking: that is how far
         // to the right the building has to start.
         var start = building.transform.position;
-        building.transform.position =
-            new Vector3(stopX + coast * speed + brakeDistance, start.y, start.z);
+        float spawnX = stopX + coast * speed + brakeDistance;
+        building.transform.position = new Vector3(spawnX, start.y, start.z);
+
+        stopBuildingX = stopX;
+
+        Debug.Log($"[Battle] '{building.name}' rolls in from x {spawnX:F2} to x {stopX:F2} " +
+                  $"at {speed:F2} u/s (brake {brakeDistance:F2})");
 
         return coast;
     }
@@ -593,6 +599,18 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     {
         panelDelay = null;
         isAdvancing = false;
+
+        // The world is really still now: put the building on the exact planned spot (frame timing
+        // during the brake can leave it a few centimetres off) and report the resulting gap, so
+        // the prefab and the gap are easy to tune.
+        if (currentBuilding != null)
+        {
+            var position = currentBuilding.transform.position;
+            currentBuilding.transform.position = new Vector3(stopBuildingX, position.y, position.z);
+
+            float gap = currentBuilding.Art.min.x - CityRightEdge();
+            Debug.Log($"[Battle] Stopped in front of '{currentBuilding.name}' (gap {gap:F2})");
+        }
 
         // The boss has no station - beating it is the end of the run.
         if (isBossBattle)
