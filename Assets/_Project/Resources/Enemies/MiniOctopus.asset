@@ -23,5 +23,5 @@ MonoBehaviour:
     stanChance: 0
   drops:
   - type: 0
-    minAmount: 1
-    maxAmount: 2
+    minAmount: 4
+    maxAmount: 6

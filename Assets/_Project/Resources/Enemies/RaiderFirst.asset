@@ -16,12 +16,12 @@ MonoBehaviour:
   prefab: {fileID: 8081482628703105104, guid: d25ea7af93aa82b41b9e8a71e745e79d, type: 3}
   stats:
     speed: 90
-    health: 70
+    health: 45
     def: 0
-    atack: 4
+    atack: 3
     regen: 0
     stanChance: 0
   drops:
   - type: 0
-    minAmount: 4
-    maxAmount: 4
+    minAmount: 5
+    maxAmount: 5

@@ -31,14 +31,19 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     [SerializeField] MapNode startingNode;
 
     [Header("Victory animation")]
-    [Tooltip("Minimum time the city keeps rolling at full speed after the last enemy dies, before " +
-             "the brake starts. The building of the stop scrolls in during this time; when it needs " +
-             "longer to reach the city, the coast stretches so it never pops in on screen.")]
+    [Tooltip("How long the city drives at full speed after the route screen has slid away, before " +
+             "the brake starts. The stop building scrolls in during this time; when it needs " +
+             "longer to reach the city, the drive stretches so it never pops in on screen.")]
     [Range(0f, 8f)]
-    [SerializeField] float victoryCoastDuration = 4.5f;
+    [SerializeField] float arrivalDriveDuration = 2.2f;
 
     [Tooltip("How long the parallax takes to come to a full stop.")]
     [SerializeField] float stopDuration = 1.8f;
+
+    [Header("Between the stops")]
+    [Tooltip("How long the city drives out of a station before the next enemy shows up.")]
+    [Range(0f, 10f)]
+    [SerializeField] float driveBeforeBattle = 3.5f;
 
     [Header("Stop building")]
     [Tooltip("Building the city stops in front of when the stop offers a shop. " +
@@ -551,25 +556,58 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
         ClearVictorySequence();
 
-        // The victory is not an instant stop: the city coasts on at full speed for a
-        // moment (corpses fall, the world keeps scrolling), and only then the brake
-        // kicks in. ParallaxSystem is left untouched during the coast on purpose -
-        // its speedMultiplier is exactly what "the city is moving" means.
-        float coast = Mathf.Max(0f, victoryCoastDuration);
+        // The boss has no station: beating it ends the run on the end screen.
+        if (isBossBattle)
+        {
+            EndRun();
+            return;
+        }
 
-        // The building of the stop scrolls in with the ground and the brake is timed so the
-        // city comes to a halt right in front of it.
+        PlayRouteScreen();
+    }
+
+    /// <summary>
+    /// The route screen of the leg that was just fought: the foreground covers the world and the
+    /// bar fills to the node the city is arriving at. Once it has slid away the city rolls up to
+    /// the stop and brakes in front of its building.
+    /// </summary>
+    void PlayRouteScreen()
+    {
+        if (travel == null || !travel.CanPlay)
+        {
+            StartArrival();
+            return;
+        }
+
+        Debug.Log("[Battle] Victory - route screen before the stop");
+
+        // The world keeps rolling behind the panel (and after it, on the way to the stop).
+        parallax?.ResumeScrolling(Mathf.Max(0f, travel.RampDuration));
+
+        travel.Play(NodeProgress(stopIndex - 1f), NodeProgress(stopIndex), StartArrival);
+    }
+
+    /// <summary>
+    /// Drives up to the stop: the stop building scrolls in with the ground and the brake is timed
+    /// so the city comes to a halt right in front of it.
+    /// </summary>
+    void StartArrival()
+    {
+        Debug.Log($"[Battle] Driving up to the stop {stopIndex + 1}/{StopCount}");
+
+        float coast = Mathf.Max(0f, arrivalDriveDuration);
+
         var building = SpawnStopBuilding();
         if (building != null) coast = PlaceStopBuilding(building, coast);
 
         Debug.Log(building != null
-            ? $"[Battle] Victory - coasting for {coast:F2}s while '{building.name}' rolls in"
-            : $"[Battle] Victory - coasting for {coast:F2}s before the stop animation");
+            ? $"[Battle] Coasting for {coast:F2}s while '{building.name}' rolls in"
+            : $"[Battle] Coasting for {coast:F2}s before the stop animation");
 
         if (coast <= 0f) PlayStopAnimation();
         else coastDelay = DOVirtual.DelayedCall(coast, PlayStopAnimation);
 
-        // The station (or the end screen after the boss) slides in once everything is still.
+        // The station of the stop slides in once everything is still.
         panelDelay = DOVirtual.DelayedCall(coast + stopDuration, AfterVictory);
     }
 
@@ -805,18 +843,22 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         // Closing the station first, so the shop slides away with the module panel.
         station?.CloseAll();
 
-        // Travel first: the city is not thrown into the next fight, it rolls on behind a
-        // foreground object while the route bar fills half-way to the next node - the battle
-        // is fought on the way there, before the city actually reaches the node.
-        if (travel != null && travel.CanPlay)
-        {
-            // The world speeds back up; the transition itself waits for the city to get going.
-            parallax?.ResumeScrolling(travel.RampDuration);
+        // The city rolls out of the station: the enemy only shows up after a few seconds of
+        // driving, so the fight starts on the open road instead of in the parking lot.
+        parallax?.ResumeScrolling(travel != null ? travel.RampDuration : 0.4f);
 
-            travel.Play(NodeProgress(stopIndex), NodeProgress(stopIndex + 1f), AdvanceAfterStop);
-            return;
+        StartCoroutine(DriveThenFight());
+    }
+
+    System.Collections.IEnumerator DriveThenFight()
+    {
+        if (driveBeforeBattle > 0f)
+        {
+            Debug.Log($"[Battle] Rolling out - the enemy shows up in {driveBeforeBattle:F1}s");
+            yield return new WaitForSeconds(driveBeforeBattle);
         }
 
+        isAdvancing = false;
         AdvanceAfterStop();
     }
 
@@ -830,7 +872,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         int nodes = StopCount + 1;
         if (nodes <= 0) return 0f;
 
-        return Mathf.Clamp01(nodeIndex / nodes);
+        return Mathf.Clamp01(nodeIndex / StopCount);
     }
 
     void OnDestroy()

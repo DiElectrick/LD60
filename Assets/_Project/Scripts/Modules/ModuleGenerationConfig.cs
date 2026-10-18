@@ -236,8 +236,9 @@ public class ModuleGenerationConfig : ScriptableObject
         {
             switch (stat)
             {
-                // Damage and speed are the "carry" stats: they scale hardest with the level.
-                case StatType.Atack: return new StatRule { stat = stat, weight = 1f, valueScale = 1f, levelScale = 1.35f, canBeMain = true, canBeExtra = true };
+                // Damage is carried by the guns alone (the city's own attack is negligible), so
+                // attack rolls are big and grow a bit faster than the other flat stats.
+                case StatType.Atack: return new StatRule { stat = stat, weight = 1f, valueScale = 2.5f, levelScale = 1.2f, canBeMain = true, canBeExtra = true };
                 case StatType.Speed: return new StatRule { stat = stat, weight = 0.9f, valueScale = 0.45f, levelScale = 1.35f, canBeMain = true, canBeExtra = true };
                 case StatType.Health: return new StatRule { stat = stat, weight = 0.9f, valueScale = 4f, levelScale = 1.3f, canBeMain = true, canBeExtra = true };
                 case StatType.Def: return new StatRule { stat = stat, weight = 0.7f, valueScale = 0.45f, levelScale = 1.3f, canBeMain = true, canBeExtra = true };

@@ -36,8 +36,8 @@ MonoBehaviour:
   stats:
   - stat: 1
     weight: 1
-    valueScale: 1
-    levelScale: 1.35
+    valueScale: 2.5
+    levelScale: 1.2
     canBeMain: 1
     canBeExtra: 1
   - stat: 2
