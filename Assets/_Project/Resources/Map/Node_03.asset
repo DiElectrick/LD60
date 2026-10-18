@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Node_03
   m_EditorClassIdentifier: Assembly-CSharp::MapNode
   displayName: Trading Post
-  encounter: {fileID: 11400000, guid: a6dbf9420c1222545965ec7186d880cf, type: 2}
+  encounter: {fileID: 11400000, guid: 37ed97ded21547ef96a2f018b773557e, type: 2}
   stationPanels:
   - module
   - shop

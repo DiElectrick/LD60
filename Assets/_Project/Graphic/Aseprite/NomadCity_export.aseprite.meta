@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: NomadCity_export
     originalName: 
-    pivot: {x: 0.56287426, y: -0.04901961}
+    pivot: {x: 0.5529412, y: -0.04901961}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,7 +137,7 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 334
+      width: 340
       height: 204
     spriteID: 3177e2fdc0aec2d40b8bf2bf998a77a5
     spriteBone: []
@@ -169,7 +169,7 @@ ScriptedImporter:
       cellRect:
         x: 4
         y: 10
-        width: 334
+        width: 340
         height: 204
       spriteId: 3177e2fdc0aec2d40b8bf2bf998a77a5
     linkedCells: []

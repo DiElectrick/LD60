@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f94c2542fc82344ea5659c5619e0905, type: 3}
+  m_Name: MiniOctopus
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyData
+  displayName: Mini Octopus
+  prefab: {fileID: 7508842308260236288, guid: 62cf19ff5f554f6ba55b30fee048f3dc, type: 3}
+  stats:
+    speed: 165
+    health: 22
+    def: 0
+    atack: 2
+    regen: 0
+    stanChance: 0
+  drops:
+  - type: 0
+    minAmount: 1
+    maxAmount: 2

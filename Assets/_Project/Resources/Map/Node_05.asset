@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Node_05
   m_EditorClassIdentifier: Assembly-CSharp::MapNode
   displayName: The Bazaar
-  encounter: {fileID: 11400000, guid: a6dbf9420c1222545965ec7186d880cf, type: 2}
+  encounter: {fileID: 11400000, guid: 98408bfd94e441978238648e593e66a9, type: 2}
   stationPanels:
   - module
   - shop

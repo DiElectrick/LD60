@@ -28,8 +28,20 @@ public class BaseEnemy : MonoBehaviour, ITurner
     EnemyData data;
 
     [Header("Death")]
-    [Tooltip("Animator state played when the enemy dies.")]
+    [Tooltip("Animator state played when the enemy dies. Empty = no animation (static sprite enemies).")]
     [SerializeField] string deathState = "Die";
+
+    [Tooltip("Sprite swapped in when the enemy dies. Empty = keep the living sprite.")]
+    [SerializeField] Sprite deathSprite;
+
+    [Tooltip("Turns the sprite upside down on death, for enemies without a death animation.")]
+    [SerializeField] bool flipOnDeath;
+
+    [Tooltip("Degrees the corpse rotates while it falls off screen. 0 = it falls without spinning.")]
+    [SerializeField] float deathSpin;
+
+    [Tooltip("How long the death spin takes.")]
+    [SerializeField] float deathSpinTime = 1.1f;
 
     [Tooltip("Gravity applied to the falling corpse.")]
     [SerializeField] float fallGravity = -22f;
@@ -54,9 +66,14 @@ public class BaseEnemy : MonoBehaviour, ITurner
     [SerializeField] float attackTwitchBackTime = 0.22f;
 
     Animator animator;
+    SpriteRenderer view;
     Canvas healthCanvas;
     Vector2 fallVelocity;
     int deathStateHash;
+
+    // Death tumble: angle it started from and how far it has turned since.
+    float deathStartAngle;
+    float deathSpinProgress;
 
     // Slot the enemy attacks from - the twitch always returns here.
     Vector3 homePosition;
@@ -68,6 +85,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
         maxHealth = enemyStats.health;
 
         animator = GetComponent<Animator>();
+        view = GetComponentInChildren<SpriteRenderer>(true);
         deathStateHash = Animator.StringToHash(deathState);
 
         var canvasTransform = transform.Find("Canvas");
@@ -82,10 +100,25 @@ public class BaseEnemy : MonoBehaviour, ITurner
         fallVelocity.y += fallGravity * Time.deltaTime;
         transform.position += new Vector3(fallDrift * Time.deltaTime, fallVelocity.y * Time.deltaTime, 0f);
 
+        // Some enemies tumble (or roll over) while they fall.
+        SpinWhileFalling();
+
         var cam = Camera.main;
         float bottom = cam != null ? cam.transform.position.y - cam.orthographicSize : -10f;
 
         if (transform.position.y < bottom - destroyBelowMargin) Destroy(gameObject);
+    }
+
+    /// <summary>Turns the corpse over the configured angle, easing out as it falls.</summary>
+    void SpinWhileFalling()
+    {
+        if (deathSpin == 0f) return;
+
+        deathSpinProgress += Time.deltaTime / Mathf.Max(0.01f, deathSpinTime);
+        float progress = Mathf.Clamp01(deathSpinProgress);
+        float eased = 1f - (1f - progress) * (1f - progress);
+
+        transform.rotation = Quaternion.Euler(0f, 0f, deathStartAngle + deathSpin * eased);
     }
 
     /// <summary>Called by the spawner right after the prefab was instantiated.</summary>
@@ -137,7 +170,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
         }
     }
 
-    public void OnTurn()
+    public virtual void OnTurn()
     {
         Regenerate();
 
@@ -200,10 +233,30 @@ public class BaseEnemy : MonoBehaviour, ITurner
         int heal = CombatRules.RegenAmount(maxHealth, enemyStats.regen);
         if (heal <= 0) return;
 
-        enemyStats.health = Mathf.Min(enemyStats.health + heal, maxHealth);
-        UpdateHealthUI();
+        Heal(heal);
 
         Debug.Log($"[Regen] {name} restored {heal} hp (hp left: {enemyStats.health})");
+    }
+
+    /// <summary>Health the enemy was spawned with; healing never goes above it.</summary>
+    public int MaxHealth => maxHealth;
+
+    /// <summary>
+    /// Restores health (never above <see cref="MaxHealth"/>) and shows the green number.
+    /// Used by regeneration and by enemies that heal themselves / their allies.
+    /// </summary>
+    public void Heal(int amount)
+    {
+        if (amount <= 0 || !isAlive) return;
+
+        int before = enemyStats.health;
+        enemyStats.health = Mathf.Min(enemyStats.health + amount, maxHealth);
+
+        int restored = enemyStats.health - before;
+        if (restored <= 0) return;
+
+        UpdateHealthUI();
+        G.Get<PopupSpawner>()?.ShowEnemyHeal(restored, transform.position);
     }
 
     /// <summary>Marks the enemy as stunned: it will skip its next turn.</summary>
@@ -215,7 +268,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
     }
 
     /// <summary>Reset for a new battle (also drops any stun).</summary>
-    public void Restart()
+    public virtual void Restart()
     {
         turnFill = 0f;
         isStunned = false;
@@ -256,11 +309,28 @@ public class BaseEnemy : MonoBehaviour, ITurner
         attackTwitch = null;
         if (homeCaptured) transform.position = homePosition;
 
-        if (animator != null) animator.Play(deathStateHash, 0, 0f);
+        PlayDeathPose();
+
         if (healthCanvas != null) healthCanvas.gameObject.SetActive(false);
 
         // Kick it slightly up, then let gravity take over in Update.
         fallVelocity = new Vector2(fallDrift, fallKickUp);
+    }
+
+    /// <summary>Death animation / sprite of the corpse: an animator state, another sprite, a flip or a spin.</summary>
+    void PlayDeathPose()
+    {
+        if (animator != null && !string.IsNullOrEmpty(deathState)) animator.Play(deathStateHash, 0, 0f);
+
+        if (deathSprite != null && view != null) view.sprite = deathSprite;
+
+        if (flipOnDeath && view != null) view.flipY = !view.flipY;
+
+        if (deathSpin != 0f)
+        {
+            deathStartAngle = transform.eulerAngles.z;
+            deathSpinProgress = 0f;
+        }
     }
 
     void DropLoot()

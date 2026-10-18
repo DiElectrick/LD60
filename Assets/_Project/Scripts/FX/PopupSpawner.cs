@@ -18,6 +18,9 @@ public class PopupSpawner : MonoBehaviour, IBootstraped
     [Tooltip("Popup anchor offset from an enemy's position.")]
     [SerializeField] Vector2 enemyOffset = new(0f, 0.8f);
 
+    [Tooltip("Heal numbers sit above the damage anchor, so a heal is never mistaken for a hit.")]
+    [SerializeField] Vector2 enemyHealOffset = new(0f, 1.6f);
+
     [Tooltip("Popup anchor offset from the city's position (above the city).")]
     [SerializeField] Vector2 cityOffset = new(0f, 2.6f);
 
@@ -33,6 +36,12 @@ public class PopupSpawner : MonoBehaviour, IBootstraped
     public void ShowEnemyDamage(int amount, Vector3 enemyPosition)
     {
         Spawn(amount, PopupKind.Damage, enemyPosition + (Vector3)enemyOffset);
+    }
+
+    /// <summary>"+N" in green over an enemy that healed itself (or was healed by a boss).</summary>
+    public void ShowEnemyHeal(int amount, Vector3 enemyPosition)
+    {
+        Spawn(amount, PopupKind.Heal, enemyPosition + (Vector3)enemyHealOffset);
     }
 
     /// <summary>"-N" over the city that was hit.</summary>

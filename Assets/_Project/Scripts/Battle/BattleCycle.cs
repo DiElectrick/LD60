@@ -654,7 +654,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
             // The world speeds back up; the transition itself waits for the city to get going.
             parallax?.ResumeScrolling(travel.RampDuration);
 
-            travel.Play(NodeProgress(stopIndex), NodeProgress(stopIndex + 0.5f), AdvanceAfterStop);
+            travel.Play(NodeProgress(stopIndex), NodeProgress(stopIndex + 0.7f), AdvanceAfterStop);
             return;
         }
 
