@@ -217,7 +217,7 @@ public class ModuleDragController : MonoBehaviour
         var platform = FindPlatform(cam.ScreenToWorldPoint(ToWorldPoint(screenPosition)));
         if (platform == null)
         {
-            Debug.Log("[Drag] Dropped outside the city - module stays in the inventory");
+            DevLog.Info("[Drag] Dropped outside the city - module stays in the inventory");
             return;
         }
 
@@ -249,7 +249,7 @@ public class ModuleDragController : MonoBehaviour
         // Otherwise the storage is the inventory grid, so the drop has to land on a slot.
         if (target.Slot == null)
         {
-            Debug.Log("[Drag] Released outside the storage - module stays in the city");
+            DevLog.Info("[Drag] Released outside the storage - module stays in the city");
             CancelCityDrag(module);
             return;
         }
@@ -277,7 +277,7 @@ public class ModuleDragController : MonoBehaviour
 
         if (stored)
         {
-            Debug.Log($"[Drag] Moved '{item.DisplayName}' from {moduleName} to the storage");
+            DevLog.Info($"[Drag] Moved '{item.DisplayName}' from {moduleName} to the storage");
             return;
         }
 
@@ -336,7 +336,7 @@ public class ModuleDragController : MonoBehaviour
 
         G.Get<ResourceManager>()?.AddDrops(drops);
 
-        Debug.Log($"[Recycle] Scrapped '{item.DisplayName}' -> {ModuleRecycling.Describe(drops)}");
+        DevLog.Info($"[Recycle] Scrapped '{item.DisplayName}' -> {ModuleRecycling.Describe(drops)}");
     }
 
     void CancelCityDrag(Module module)

@@ -200,7 +200,7 @@ public class ModuleGenerationConfig : ScriptableObject
 
     void LogDefaults()
     {
-        Debug.Log($"[Generator] '{name}' filled with {levels.Count} level rows and {stats.Count} stat rules");
+        DevLog.Info($"[Generator] '{name}' filled with {levels.Count} level rows and {stats.Count} stat rules");
     }
 
     /// <summary>Built-in values used by a fresh config and as a fallback for missing rows.</summary>

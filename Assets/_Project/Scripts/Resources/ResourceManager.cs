@@ -60,7 +60,7 @@ public class ResourceManager : MonoBehaviour, IBootstraped
             if (amount <= 0) continue;
 
             Add(drop.type, amount);
-            Debug.Log($"[Resources] +{amount} {drop.type} (total {Get(drop.type)})");
+            DevLog.Info($"[Resources] +{amount} {drop.type} (total {Get(drop.type)})");
         }
     }
 }

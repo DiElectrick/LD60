@@ -169,7 +169,7 @@ public class TravelTransition : MonoBehaviour
         isPlaying = true;
         StopAllCoroutines();
 
-        Debug.Log($"[Travel] Covering the world - route bar {from:F2} -> {to:F2}");
+        DevLog.Info($"[Travel] Covering the world - route bar {from:F2} -> {to:F2}");
         StartCoroutine(TravelRoutine(from, to, onArrived, false));
     }
 
@@ -197,7 +197,7 @@ public class TravelTransition : MonoBehaviour
         isPlaying = true;
         StopAllCoroutines();
 
-        Debug.Log(victory
+        DevLog.Info(victory
             ? "[Travel] End of the run - showing the complete route"
             : $"[Travel] Defeat - showing the run up to {Mathf.Clamp01(to):P0}");
 
@@ -211,7 +211,7 @@ public class TravelTransition : MonoBehaviour
         // 1. the city gets up to speed and simply drives for a moment before anything moves in
         if (!end && driveBeforeEntry > 0f)
         {
-            Debug.Log($"[Travel] City driving for {driveBeforeEntry:F1}s before the foreground enters");
+            DevLog.Info($"[Travel] City driving for {driveBeforeEntry:F1}s before the foreground enters");
             yield return new WaitForSeconds(driveBeforeEntry);
         }
 
@@ -221,7 +221,7 @@ public class TravelTransition : MonoBehaviour
             float entryDuration = EntryDuration();
             float entrySpeed = EntrySpeed();
 
-            Debug.Log($"[Travel] Foreground entering in {entryDuration:F2}s at {entrySpeed:F2} units/s");
+            DevLog.Info($"[Travel] Foreground entering in {entryDuration:F2}s at {entrySpeed:F2} units/s");
 
             foreground.gameObject.SetActive(true);
             foreground.position = coveredPosition + hiddenOffset;
@@ -236,7 +236,7 @@ public class TravelTransition : MonoBehaviour
         {
             yield return screenGroup.DOFade(1f, fadeDuration).WaitForCompletion();
 
-            Debug.Log($"[Travel] Route bar shown (alpha {screenGroup.alpha:F2})");
+            DevLog.Info($"[Travel] Route bar shown (alpha {screenGroup.alpha:F2})");
         }
 
         if (barFill != null)
@@ -275,7 +275,7 @@ public class TravelTransition : MonoBehaviour
         {
             float exitDuration = ExitDuration();
 
-            Debug.Log($"[Travel] Foreground leaving to the left in {exitDuration:F2}s");
+            DevLog.Info($"[Travel] Foreground leaving to the left in {exitDuration:F2}s");
 
             yield return foreground.DOMove(coveredPosition - hiddenOffset, exitDuration)
                 .SetEase(Ease.Linear)
@@ -294,7 +294,7 @@ public class TravelTransition : MonoBehaviour
         if (battleStartDelay > 0f) yield return new WaitForSeconds(battleStartDelay);
 
         isPlaying = false;
-        Debug.Log("[Travel] Arrived - the next battle can start");
+        DevLog.Info("[Travel] Arrived - the next battle can start");
         onArrived?.Invoke();
     }
 

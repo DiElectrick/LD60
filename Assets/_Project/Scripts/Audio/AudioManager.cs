@@ -291,7 +291,7 @@ public class AudioManager : MonoBehaviour, IBootstraped
 
         if (!bypassInterval && now - lastSfxTime < sfxMinInterval)
         {
-            if (logSkippedSfx) Debug.Log($"[Audio] '{clip.name}' skipped (interval {sfxMinInterval:F2}s)");
+            if (logSkippedSfx) DevLog.Info($"[Audio] '{clip.name}' skipped (interval {sfxMinInterval:F2}s)");
             return false;
         }
 
@@ -331,7 +331,7 @@ public class AudioManager : MonoBehaviour, IBootstraped
         if (cue == null || cue.clip == null) return false;
 
         bool played = PlaySfxClip(cue.clip, cue.volume, cue.pitchSpread, cue.bypassInterval);
-        if (played) Debug.Log("[Audio] Engine start");
+        if (played) DevLog.Info("[Audio] Engine start");
 
         return played;
     }

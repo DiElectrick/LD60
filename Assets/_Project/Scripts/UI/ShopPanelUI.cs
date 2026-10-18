@@ -163,7 +163,7 @@ public class ShopPanelUI : SlidingStationPanel
         // Storage first: nothing is spent when the item would not fit.
         if (!inventory.HasFreeSlot)
         {
-            Debug.Log("[Shop] Storage is full - free a slot first");
+            DevLog.Info("[Shop] Storage is full - free a slot first");
             return;
         }
 
@@ -172,7 +172,7 @@ public class ShopPanelUI : SlidingStationPanel
 
         if (resources != null && !resources.TrySpend(priceResource, cost))
         {
-            Debug.Log($"[Shop] Not enough {priceResource}: {resources.Get(priceResource)}/{cost}");
+            DevLog.Info($"[Shop] Not enough {priceResource}: {resources.Get(priceResource)}/{cost}");
             G.Get<AudioManager>()?.PlaySfx("error");
             return;
         }
@@ -188,7 +188,7 @@ public class ShopPanelUI : SlidingStationPanel
         offer.SetSold(true);
         Refresh(offer);
 
-        Debug.Log($"[Shop] Bought '{offer.Item.DisplayName}' for {cost} {priceResource}");
+        DevLog.Info($"[Shop] Bought '{offer.Item.DisplayName}' for {cost} {priceResource}");
     }
 
     void Refresh(ShopOfferUI offer)

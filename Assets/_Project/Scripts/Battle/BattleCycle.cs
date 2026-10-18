@@ -224,10 +224,10 @@ public class BattleCycle : MonoBehaviour, IBootstraped
             return;
         }
 
-        Debug.Log($"[Battle] Run '{route.displayName}': {StopCount} stops " +
+        DevLog.Info($"[Battle] Run '{route.displayName}': {StopCount} stops " +
                   $"({route.CountStopsWith("shop")} shop, {route.CountStopsWith("repair")} repair), " +
                   $"boss '{NameOf(route.bossEncounter)}'");
-        Debug.Log($"[Battle] Path: {DescribeRoute(route)}");
+        DevLog.Info($"[Battle] Path: {DescribeRoute(route)}");
 
         // The run can start at a camp: no fight, the station (module panel) opens right away.
         if (CurrentNode != null && CurrentNode.isCamp)
@@ -242,7 +242,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     /// <summary>Starts the run on a camp: the world is parked and the station opens without a battle.</summary>
     void BeginAtCamp(MapNode camp)
     {
-        Debug.Log($"[Battle] Starting at camp '{camp.displayName}' [{string.Join("+", camp.stationPanels)}]");
+        DevLog.Info($"[Battle] Starting at camp '{camp.displayName}' [{string.Join("+", camp.stationPanels)}]");
 
         isBattleRunning = false;
         spawner?.DespawnAll();
@@ -282,7 +282,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
             return;
         }
 
-        Debug.Log($"[Battle] Stop {stopIndex + 1}/{StopCount}: {node.displayName} " +
+        DevLog.Info($"[Battle] Stop {stopIndex + 1}/{StopCount}: {node.displayName} " +
                   $"[{string.Join("+", node.stationPanels)}]");
 
         StartEncounter(CurrentEncounter);
@@ -316,7 +316,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
         isBossBattle = true;
 
-        Debug.Log($"[Battle] Boss: '{route.bossEncounter.displayName}'");
+        DevLog.Info($"[Battle] Boss: '{route.bossEncounter.displayName}'");
         StartEncounter(route.bossEncounter);
     }
 
@@ -336,7 +336,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         // into the sunset while the end screen comes in over it. No brake, no parking.
         parallax?.ResumeScrolling();
 
-        Debug.Log("[Battle] Run complete - every stop cleared and the boss defeated");
+        DevLog.Info("[Battle] Run complete - every stop cleared and the boss defeated");
 
         // The last travel keeps its screen: full bar, message and restart button.
         ShowEndScreen(victory: true);
@@ -362,7 +362,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         modulePanel?.Hide();
         ClearVictorySequence();
 
-        Debug.Log("[Battle] Defeat - the city is destroyed, the run is over");
+        DevLog.Info("[Battle] Defeat - the city is destroyed, the run is over");
 
         StopAllCoroutines();
         StartCoroutine(DeathRoutine());
@@ -554,7 +554,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
         turnManager.InitBattle(turners);
         isBattleRunning = true;
 
-        Debug.Log($"[Battle] Started '{encounter.displayName}' with {turners.Count} enemies");
+        DevLog.Info($"[Battle] Started '{encounter.displayName}' with {turners.Count} enemies");
 
         BattleStarted?.Invoke();
     }
@@ -601,7 +601,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
             return;
         }
 
-        Debug.Log("[Battle] Victory - route screen before the stop");
+        DevLog.Info("[Battle] Victory - route screen before the stop");
 
         // The world keeps rolling behind the panel (and after it, on the way to the stop).
         parallax?.ResumeScrolling(Mathf.Max(0f, travel.RampDuration));
@@ -615,14 +615,14 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     /// </summary>
     void StartArrival()
     {
-        Debug.Log($"[Battle] Driving up to the stop {stopIndex + 1}/{StopCount}");
+        DevLog.Info($"[Battle] Driving up to the stop {stopIndex + 1}/{StopCount}");
 
         float coast = Mathf.Max(0f, arrivalDriveDuration);
 
         var building = SpawnStopBuilding();
         if (building != null) coast = PlaceStopBuilding(building, coast);
 
-        Debug.Log(building != null
+        DevLog.Info(building != null
             ? $"[Battle] Coasting for {coast:F2}s while '{building.name}' rolls in"
             : $"[Battle] Coasting for {coast:F2}s before the stop animation");
 
@@ -701,7 +701,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
         stopBuildingX = stopX;
 
-        Debug.Log($"[Battle] '{building.name}' rolls in from x {spawnX:F2} to x {stopX:F2} " +
+        DevLog.Info($"[Battle] '{building.name}' rolls in from x {spawnX:F2} to x {stopX:F2} " +
                   $"at {speed:F2} u/s (brake {brakeDistance:F2})");
 
         return coast;
@@ -776,7 +776,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
     {
         coastDelay = null;
 
-        Debug.Log("[Battle] Braking the world to a stop");
+        DevLog.Info("[Battle] Braking the world to a stop");
 
         parallax?.BrakeToStop(stopDuration);
         ShakeCity();
@@ -828,7 +828,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
             currentBuilding.transform.position = new Vector3(stopBuildingX, position.y, position.z);
 
             float gap = currentBuilding.Art.min.x - CityRightEdge();
-            Debug.Log($"[Battle] Stopped in front of '{currentBuilding.name}' (gap {gap:F2})");
+            DevLog.Info($"[Battle] Stopped in front of '{currentBuilding.name}' (gap {gap:F2})");
         }
 
         // The boss has no station - beating it is the end of the run.
@@ -840,7 +840,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
         if (station != null && CurrentNode != null)
         {
-            Debug.Log($"[Battle] Station of '{CurrentNode.displayName}': " +
+            DevLog.Info($"[Battle] Station of '{CurrentNode.displayName}': " +
                       $"{string.Join(", ", CurrentNode.stationPanels)}");
             station.Open(CurrentNode);
             return;
@@ -881,7 +881,7 @@ public class BattleCycle : MonoBehaviour, IBootstraped
 
         if (driveBeforeBattle > 0f)
         {
-            Debug.Log($"[Battle] Rolling out - the enemy shows up in {driveBeforeBattle:F1}s");
+            DevLog.Info($"[Battle] Rolling out - the enemy shows up in {driveBeforeBattle:F1}s");
             yield return new WaitForSeconds(driveBeforeBattle);
         }
 

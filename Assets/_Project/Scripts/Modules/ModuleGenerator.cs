@@ -69,7 +69,7 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
             {
                 loadedPool.AddRange(Resources.LoadAll<ModuleData>(ModuleResourceFolder));
                 loadedPool.RemoveAll(data => data == null);
-                Debug.Log($"[Generator] Loaded {loadedPool.Count} module archetypes from Resources/{ModuleResourceFolder}");
+                DevLog.Info($"[Generator] Loaded {loadedPool.Count} module archetypes from Resources/{ModuleResourceFolder}");
 
                 // The UI icon comes from ModuleData.icon, or from the prefab art when no icon
                 // is assigned - stating it once makes a mixed set of icons easy to spot.
@@ -77,7 +77,7 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
                 {
                     if (data.icon != null) continue;
 
-                    Debug.Log($"[Generator] '{data.name}' has no icon assigned - its UI icon is the prefab art");
+                    DevLog.Info($"[Generator] '{data.name}' has no icon assigned - its UI icon is the prefab art");
                 }
             }
 
@@ -100,7 +100,7 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
     {
         // Touch the config at boot so a missing asset is reported once, before the first roll.
         var cfg = Config;
-        Debug.Log($"[Generator] Ready: levels {cfg.MinLevel}-{cfg.MaxLevel}, {cfg.Levels.Count} rows, {cfg.Stats.Count} stat rules");
+        DevLog.Info($"[Generator] Ready: levels {cfg.MinLevel}-{cfg.MaxLevel}, {cfg.Levels.Count} rows, {cfg.Stats.Count} stat rules");
     }
 
     // ------------------------------------------------------------------ rolls
@@ -171,7 +171,7 @@ public class ModuleGenerator : MonoBehaviour, IBootstraped
             }
         }
 
-        Debug.Log($"[Generator] Rolled {instance}");
+        DevLog.Info($"[Generator] Rolled {instance}");
         return instance;
     }
 

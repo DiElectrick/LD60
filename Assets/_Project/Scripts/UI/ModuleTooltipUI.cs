@@ -353,7 +353,7 @@ public class ModuleTooltipUI : MonoBehaviour
 
         // Lives on the canvas object; Awake builds the panel.
         var tooltip = canvas.gameObject.AddComponent<ModuleTooltipUI>();
-        Debug.Log("[Tooltip] Created a tooltip on the canvas");
+        DevLog.Info("[Tooltip] Created a tooltip on the canvas");
 
         return tooltip;
     }

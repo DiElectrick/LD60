@@ -15,7 +15,7 @@ public static class TutorialMenu
         PlayerPrefs.DeleteKey(TutorialController.ShownKey);
         PlayerPrefs.Save();
 
-        Debug.Log($"[Tutorial] Progress reset ('{TutorialController.ShownKey}') - " +
+        DevLog.Info($"[Tutorial] Progress reset ('{TutorialController.ShownKey}') - " +
                   "the tutorial shows up on the next run");
     }
 

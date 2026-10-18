@@ -79,14 +79,14 @@ public class RepairPanelUI : SlidingStationPanel
 
         if (city.CurrentHealth >= city.Stats.health)
         {
-            Debug.Log("[Repair] City is already at full durability");
+            DevLog.Info("[Repair] City is already at full durability");
             return;
         }
 
         if (repairButton.cost > 0 && resources != null &&
             !resources.TrySpend(repairButton.resource, repairButton.cost))
         {
-            Debug.Log($"[Repair] Not enough {repairButton.resource}: " +
+            DevLog.Info($"[Repair] Not enough {repairButton.resource}: " +
                       $"{resources.Get(repairButton.resource)}/{repairButton.cost}");
             G.Get<AudioManager>()?.PlaySfx("error");
             return;

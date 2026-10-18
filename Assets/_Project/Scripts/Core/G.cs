@@ -9,7 +9,6 @@ public static class G
     
     public static void Register<T>(T instance) where T : class
     {
-        //Debug.Log(typeof(T));
         if (instance == null) throw new ArgumentNullException(nameof(instance));
         services[instance.GetType()] = instance;
     }

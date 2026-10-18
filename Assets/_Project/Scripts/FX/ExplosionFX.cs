@@ -82,7 +82,7 @@ public class ExplosionFX : MonoBehaviour, IBootstraped
         PlaySound();
         SpawnParticles(position);
 
-        Debug.Log($"[FX] Explosion at {position}");
+        DevLog.Info($"[FX] Explosion at {position}");
     }
 
     void PlaySound()

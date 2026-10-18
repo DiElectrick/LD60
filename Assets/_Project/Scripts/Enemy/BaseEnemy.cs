@@ -162,7 +162,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
                 // The whole turn is lost, then the stun wears off.
                 isStunned = false;
                 UpdateInitiativeUI();
-                Debug.Log($"[Stun] {name} is stunned and skips a turn");
+                DevLog.Info($"[Stun] {name} is stunned and skips a turn");
                 return;
             }
 
@@ -184,7 +184,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
 
         if (CombatRules.RollChance(enemyStats.stanChance))
         {
-            Debug.Log($"[Stun] {name} stuns the city ({enemyStats.stanChance}%)");
+            DevLog.Info($"[Stun] {name} stuns the city ({enemyStats.stanChance}%)");
             city.Stun();
         }
     }
@@ -235,7 +235,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
 
         Heal(heal);
 
-        Debug.Log($"[Regen] {name} restored {heal} hp (hp left: {enemyStats.health})");
+        DevLog.Info($"[Regen] {name} restored {heal} hp (hp left: {enemyStats.health})");
     }
 
     /// <summary>Health the enemy was spawned with; healing never goes above it.</summary>
@@ -280,7 +280,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
 
         int applied = Mathf.Max(damage - enemyStats.def, 1);
         enemyStats.health -= applied;
-        Debug.Log($"{name} took {damage} damage, hp left: {enemyStats.health}");
+        DevLog.Info($"{name} took {damage} damage, hp left: {enemyStats.health}");
 
         G.Get<PopupSpawner>()?.ShowEnemyDamage(applied, transform.position);
         G.Get<AudioManager>()?.PlaySfx("enemyDamage");
@@ -293,7 +293,7 @@ public class BaseEnemy : MonoBehaviour, ITurner
     void Die()
     {
         isAlive = false;
-        Debug.Log($"{name} died");
+        DevLog.Info($"{name} died");
 
         G.Get<AudioManager>()?.PlaySfx("death");
 

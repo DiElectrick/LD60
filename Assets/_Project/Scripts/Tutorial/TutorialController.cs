@@ -207,7 +207,7 @@ public class TutorialController : MonoBehaviour, IBootstraped
     {
         if (!ShouldShow())
         {
-            Debug.Log("[Tutorial] Already shown once - skipping");
+            DevLog.Info("[Tutorial] Already shown once - skipping");
             return;
         }
 
@@ -259,7 +259,7 @@ public class TutorialController : MonoBehaviour, IBootstraped
     {
         PlayerPrefs.DeleteKey(ShownKey);
         PlayerPrefs.Save();
-        Debug.Log("[Tutorial] Progress reset - the tutorial will show up on the next run");
+        DevLog.Info("[Tutorial] Progress reset - the tutorial will show up on the next run");
     }
 
     void Update()
@@ -327,7 +327,7 @@ public class TutorialController : MonoBehaviour, IBootstraped
 
         if (dragController != null) dragController.ModuleInstalled += OnModuleInstalled;
 
-        Debug.Log("[Tutorial] Step 1 - drag a module into the city");
+        DevLog.Info("[Tutorial] Step 1 - drag a module into the city");
         Show(buildText, buildTarget, Gesture.Drag, false);
     }
 
@@ -337,7 +337,7 @@ public class TutorialController : MonoBehaviour, IBootstraped
 
         if (dragController != null) dragController.ModuleInstalled -= OnModuleInstalled;
 
-        Debug.Log($"[Tutorial] Module installed '{item?.DisplayName}'");
+        DevLog.Info($"[Tutorial] Module installed '{item?.DisplayName}'");
         ShowStatsStep();
     }
 
@@ -345,7 +345,7 @@ public class TutorialController : MonoBehaviour, IBootstraped
     {
         phase = Phase.Stats;
 
-        Debug.Log("[Tutorial] Step 2 - the stats panel changed");
+        DevLog.Info("[Tutorial] Step 2 - the stats panel changed");
         Show(statsText, statsTarget, Gesture.Tap, true);
 
         StartHold(statsHoldTime, () =>
@@ -358,7 +358,7 @@ public class TutorialController : MonoBehaviour, IBootstraped
     {
         phase = Phase.Depart;
 
-        Debug.Log("[Tutorial] Step 3 - press Next to leave the station");
+        DevLog.Info("[Tutorial] Step 3 - press Next to leave the station");
         Show(departText, departTarget, Gesture.Tap, false);
     }
 
@@ -366,7 +366,7 @@ public class TutorialController : MonoBehaviour, IBootstraped
     {
         if (phase == Phase.Off || phase == Phase.Waiting || phase == Phase.Battle || phase == Phase.Done) return;
 
-        Debug.Log("[Tutorial] Next pressed - waiting for the first fight");
+        DevLog.Info("[Tutorial] Next pressed - waiting for the first fight");
 
         StopHold();
         HideOverlay();
@@ -377,7 +377,7 @@ public class TutorialController : MonoBehaviour, IBootstraped
     {
         if (phase == Phase.Off || phase == Phase.Battle || phase == Phase.Done) return;
 
-        Debug.Log("[Tutorial] Step 4 - the first fight is running");
+        DevLog.Info("[Tutorial] Step 4 - the first fight is running");
 
         StopHold();
         phase = Phase.Battle;
@@ -398,7 +398,7 @@ public class TutorialController : MonoBehaviour, IBootstraped
 
         if (dragController != null) dragController.ModuleInstalled -= OnModuleInstalled;
 
-        Debug.Log("[Tutorial] Done");
+        DevLog.Info("[Tutorial] Done");
     }
 
     void StartHold(float seconds, System.Action then)

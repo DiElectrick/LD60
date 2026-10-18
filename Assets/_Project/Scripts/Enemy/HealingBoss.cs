@@ -45,7 +45,7 @@ public class HealingBoss : BaseEnemy
 
         if (IsHealingTurn() && Support())
         {
-            Debug.Log($"[Boss] {name} patches the swarm up (+{healAmount})");
+            DevLog.Info($"[Boss] {name} patches the swarm up (+{healAmount})");
             return;
         }
 

@@ -39,7 +39,7 @@ public class StationController : MonoBehaviour, IBootstraped
         var ids = new List<string>();
         foreach (var panel in panels) ids.Add(panel.PanelId);
 
-        Debug.Log($"[Station] {panels.Count} panel(s): {string.Join(", ", ids)}");
+        DevLog.Info($"[Station] {panels.Count} panel(s): {string.Join(", ", ids)}");
     }
 
     /// <summary>Opens the station of a map node (null = just the module panel).</summary>

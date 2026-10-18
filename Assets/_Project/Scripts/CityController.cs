@@ -128,7 +128,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
             return null;
         }
 
-        Debug.Log($"[City] Added module '{instance.DisplayName}' to {platform.name} ({platform.Count}/{Platform.MaxModules})");
+        DevLog.Info($"[City] Added module '{instance.DisplayName}' to {platform.name} ({platform.Count}/{Platform.MaxModules})");
         RecalculateStats();
         ModulesChanged?.Invoke();
         return module;
@@ -142,7 +142,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         {
             if (!platform.Remove(module)) continue;
 
-            Debug.Log($"[City] Removed module '{module.name}' from {platform.name} ({platform.Count}/{Platform.MaxModules})");
+            DevLog.Info($"[City] Removed module '{module.name}' from {platform.name} ({platform.Count}/{Platform.MaxModules})");
             Destroy(module.gameObject);
             RecalculateStats();
             ModulesChanged?.Invoke();
@@ -174,7 +174,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
             }
         }
 
-        Debug.Log($"[City] Stats: atk {stats.atack}, hp {stats.health}, def {stats.def}, spd {stats.speed}, " +
+        DevLog.Info($"[City] Stats: atk {stats.atack}, hp {stats.health}, def {stats.def}, spd {stats.speed}, " +
                   $"regen {stats.regen}%, stun {stats.stanChance}%, scrap +{harvestPerTurn}/turn");
 
         UpdateHealthUI();
@@ -194,7 +194,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         var target = manager.GetRandomEnemy();
         if (target == null)
         {
-            Debug.Log("City turn: no enemies left");
+            DevLog.Info("City turn: no enemies left");
             return;
         }
 
@@ -215,7 +215,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
             attacker.PlayAttack(target, hitDelay);
         }
 
-        Debug.Log($"City attacks {target.name} with {attackers.Count} weapon(s), hit in {hitDelay:F2}s");
+        DevLog.Info($"City attacks {target.name} with {attackers.Count} weapon(s), hit in {hitDelay:F2}s");
 
         // Damage is applied exactly once, independent of the visual shots.
         if (hitDelay <= 0f) ApplyHit(target);
@@ -237,7 +237,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
         if (CombatRules.RollChance(stats.stanChance))
         {
-            Debug.Log($"[Stun] City stuns {target.name} ({stats.stanChance}%)");
+            DevLog.Info($"[Stun] City stuns {target.name} ({stats.stanChance}%)");
             target.Stun();
         }
     }
@@ -273,7 +273,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
 
         if (restored > 0) ShowHealPopups(restored);
 
-        Debug.Log($"[Regen] City restored {restored} hp ({curentTakeDamage} damage taken)");
+        DevLog.Info($"[Regen] City restored {restored} hp ({curentTakeDamage} damage taken)");
     }
 
     /// <summary>
@@ -341,7 +341,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         var resources = G.Get<ResourceManager>();
         resources?.Add(ResourceType.ScrapMetal, harvestPerTurn);
 
-        Debug.Log($"[Harvest] City collected {harvestPerTurn} {ResourceType.ScrapMetal} " +
+        DevLog.Info($"[Harvest] City collected {harvestPerTurn} {ResourceType.ScrapMetal} " +
                   $"(total {resources?.Get(ResourceType.ScrapMetal) ?? 0})");
     }
 
@@ -370,7 +370,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
             G.Get<PopupSpawner>()?.ShowCityHeal(restored, transform.position);
         }
 
-        Debug.Log($"[Repair] Restored {restored} hp ({CurrentHealth}/{stats.health})");
+        DevLog.Info($"[Repair] Restored {restored} hp ({CurrentHealth}/{stats.health})");
     }
 
     /// <summary>Reset for a new battle (also drops any stun).</summary>
@@ -395,7 +395,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
                 // The whole turn is lost, then the stun wears off.
                 isStunned = false;
                 UpdateInitiativeUI();
-                Debug.Log("[Stun] City is stunned and skips a turn");
+                DevLog.Info("[Stun] City is stunned and skips a turn");
                 return;
             }
 
@@ -434,7 +434,7 @@ public class CityController : MonoBehaviour, ITurner, IBootstraped
         turnFill = 0f;
         UpdateInitiativeUI();
 
-        Debug.Log("[City] Destroyed - the city ran out of health");
+        DevLog.Info("[City] Destroyed - the city ran out of health");
         Destroyed?.Invoke();
     }
 }

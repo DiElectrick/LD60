@@ -63,7 +63,7 @@ public class LoadingFade : MonoBehaviour, IBootstraped
 
     IEnumerator Run()
     {
-        Debug.Log($"[Loading] Cover up for {holdTime:F2}s, fading over {fadeDuration:F2}s");
+        DevLog.Info($"[Loading] Cover up for {holdTime:F2}s, fading over {fadeDuration:F2}s");
 
         if (holdTime > 0f) yield return new WaitForSecondsRealtime(holdTime);
 
@@ -89,7 +89,7 @@ public class LoadingFade : MonoBehaviour, IBootstraped
         if (cover == null) yield break;
 
         cover.gameObject.SetActive(false);
-        Debug.Log("[Loading] Cover gone");
+        DevLog.Info("[Loading] Cover gone");
     }
 
     /// <summary>Adds the full-screen image on top of the canvas and starts it fully opaque.</summary>
