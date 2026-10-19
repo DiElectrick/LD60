@@ -54,7 +54,7 @@ public class EnemySpawner : MonoBehaviour, IBootstraped
         var enemy = Instantiate(data.prefab, transform);
 
         Vector3 targetPosition = transform.position +
-            new Vector3(firstSlot.x, firstSlot.y - slotIndex * slotSpacing, 0f);
+            new Vector3(firstSlot.x + (slotIndex%2 == 1? 1f:-0.5f), firstSlot.y - slotIndex * slotSpacing, 0f);
 
         enemy.transform.position = targetPosition + EntryOffset(slotIndex);
         enemy.transform.DOMove(targetPosition, flyInDuration)

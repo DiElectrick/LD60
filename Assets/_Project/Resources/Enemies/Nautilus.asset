@@ -16,7 +16,7 @@ MonoBehaviour:
   prefab: {fileID: 5835475248265725952, guid: 943ad69e91a64070a2838e9652b5be0f, type: 3}
   stats:
     speed: 40
-    health: 120
+    health: 130
     def: 7
     atack: 17
     regen: 0

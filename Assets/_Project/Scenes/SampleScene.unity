@@ -1823,17 +1823,17 @@ MonoBehaviour:
   sfx:
   - id: set
     clip: {fileID: 8300000, guid: 11c8259b9ebeffb4398a40339c23089d, type: 3}
-    volume: 0.9
+    volume: 0.425
     pitchSpread: 0.05
     bypassInterval: 0
   - id: error
-    clip: {fileID: 8300000, guid: b51f243f262bcac47bfdbd67dacd8e60, type: 3}
-    volume: 0.537
+    clip: {fileID: 8300000, guid: a16931fc4ad38c64c9dc755b60674d59, type: 3}
+    volume: 0.425
     pitchSpread: 0
     bypassInterval: 0
   - id: blipSelect
-    clip: {fileID: 8300000, guid: a16931fc4ad38c64c9dc755b60674d59, type: 3}
-    volume: 0.532
+    clip: {fileID: 8300000, guid: b51f243f262bcac47bfdbd67dacd8e60, type: 3}
+    volume: 0.413
     pitchSpread: 0.03
     bypassInterval: 0
   - id: enemyDamage
@@ -12486,7 +12486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialController
   onlyFirstRun: 1
-  alwaysShow: 1
+  alwaysShow: 0
   startDelay: 0.9
   buildText: Build your city from modules
   statsText: Modules affect stats
